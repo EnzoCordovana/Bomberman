@@ -1,0 +1,14 @@
+.custom-button {
+    -fx-background-color: #0066cc;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16;
+    -fx-background-radius: 10;
+}
+.custom-button:hover {
+    -fx-background-color: #0055bb;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16;
+    -fx-background-radius: 10;
+}
