@@ -5,6 +5,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.URL;
+
 /**
  * Classe ViewManager gérant la navigation entre les différentes vues de l'application.
  * Implémente le pattern Singleton pour assurer une seule instance de gestionnaire de vues.
@@ -51,31 +54,56 @@ public class ViewManager {
         }
     }
 
+    private void loadView(String fxmlFile, String title) {
+        try {
+            // Charger le FXML depuis le classpath
+            URL fxmlUrl = getClass().getResource("/view/" + fxmlFile);
+            if (fxmlUrl == null) {
+                System.err.println("Fichier FXML non trouvé: /view/" + fxmlFile);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle(title);
+        } catch (IOException e) {
+            System.err.println("Erreur lors du chargement de " + fxmlFile);
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Affiche la vue du menu principal.
      */
     public void showMenuView() {
-        showView("/view/MenuView.fxml");
+        //showView("/view/MenuView.fxml");
+        loadView("MenuView.fxml", "Bomberman - Menu");
     }
 
     /**
      * Affiche la vue du jeu.
      */
-    public void showGameView() {
-        showView("/view/GameView.fxml");
+    public void showPlayView() {
+        //showView("/view/PlayView.fxml");
+        loadView("PlayView.fxml", "Bomberman - Play");
     }
 
     /**
      * Affiche la vue des paramètres.
      */
-    public void showOptionsView() {
-        showView("/view/OptionsView.fxml");
+    public void showSettingsView() {
+        //showView("/view/SettingsView.fxml");
+        loadView("SettingsView.fxml", "Bomberman - Settings");
     }
 
     /**
      * Affiche la vue du profile.
      */
-    public void showProfile() {
-        showView("/view/ProfileView.fxml");
+    public void showProfileView() {
+        //showView("/view/ProfileView.fxml");
+        loadView("ProfileView.fxml", "Bomberman - Profile");
     }
 }

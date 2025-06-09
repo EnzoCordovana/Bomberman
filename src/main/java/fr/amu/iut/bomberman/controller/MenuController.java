@@ -14,6 +14,14 @@ public class MenuController {
     private Stage primaryStage;
 
     /**
+     * Méthode appelée lors du clic sur le bouton "Jouer"
+     */
+    @FXML
+    private void startGame() {
+        ViewManager.getInstance(primaryStage).showPlayView();
+    }
+
+    /**
      * Définit la référence à la fenêtre principale.
      * @param primaryStage La fenêtre principale de l'application
      */
