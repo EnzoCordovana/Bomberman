@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="fr.amu.iut.bomberman.controller.PlayController"
+      spacing="10" style="-fx-background-color: #222222;">
+
+    <!-- Barre de menu supérieure -->
+    <HBox style="-fx-background-color: #333333; -fx-padding: 10;">
+        <Label text="Bomberman" style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;"/>
+        <Separator HBox.hgrow="ALWAYS"/>
+        <Button text="Pause" style="-fx-text-fill: white; -fx-background-color: #444444;" onAction="#handlePause"/>
+        <Button text="Quitter" style="-fx-text-fill: white; -fx-background-color: #444444;" onAction="#handleQuit"/>
+    </HBox>
+
+    <!-- Zone de jeu principale -->
+    <BorderPane>
+        <!-- Zone d'affichage du jeu -->
+        <center>
+            <AnchorPane fx:id="gameArea" style="-fx-background-color: black;">
+                <!-- Le contenu du jeu sera ajouté dynamiquement ici -->
+            </AnchorPane>
+        </center>
+
+        <!-- Barre d'informations latérale -->
+        <right>
+            <VBox spacing="10" style="-fx-background-color: #333333; -fx-padding: 10;">
+                <Label text="Joueurs" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+
+                <!-- Liste des joueurs -->
+                <VBox fx:id="playersList" spacing="5">
+                    <!-- Les informations des joueurs seront ajoutées dynamiquement -->
+                </VBox>
+
+                <Separator style="-fx-background-color: #555555;"/>
+
+                <Label text="Contrôles" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Label text="Déplacement: Flèches" style="-fx-text-fill: white;"/>
+                <Label text="Poser bombe: Espace" style="-fx-text-fill: white;"/>
+            </VBox>
+        </right>
+
+        <!-- Barre d'état inférieure -->
+        <bottom>
+            <HBox spacing="20" style="-fx-background-color: #333333; -fx-padding: 10;">
+                <Label fx:id="timeLabel" text="Temps: 00:00" style="-fx-text-fill: white;"/>
+                <Label fx:id="scoreLabel" text="Score: 0" style="-fx-text-fill: white;"/>
+                <Label fx:id="livesLabel" text="Vies: 3" style="-fx-text-fill: white;"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
+</VBox>
