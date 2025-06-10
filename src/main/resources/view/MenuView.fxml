@@ -6,8 +6,8 @@
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="fr.amu.iut.bomberman.controller.MenuController">
     <Label text="Bomberman" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-    <Button text="Paramètres" onAction="#handleSettingsButton"/>
-    <Button text="Jouer" onAction="#handlePlayButton"/>
-    <Button text="Profils" onAction="#handleProfileButton"/>
-    <Button text="Quitter" onAction="#handleQuitButton"/>
+    <Button fx:id="settingsButton" text="Paramètres" onAction="#handleSettingsButton"/>
+    <Button fx:id="playButton" text="Jouer" onAction="#handlePlayButton"/>
+    <Button fx:id="profileButton" text="Profils" onAction="#handleProfileButton"/>
+    <Button fx:id="quitButton" text="Quitter" onAction="#handleQuitButton"/>
 </VBox>
