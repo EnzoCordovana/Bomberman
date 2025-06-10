@@ -12,7 +12,7 @@ import java.net.URL;
  * Classe ViewManager gérant la navigation entre les différentes vues de l'application.
  * Implémente le pattern Singleton pour assurer une seule instance de gestionnaire de vues.
  */
-public class ViewManager {
+public class ViewManager implements IViewManager {
     /** Instance unique du ViewManager (pattern Singleton) */
     private static ViewManager instance;
 
