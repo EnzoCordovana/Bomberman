@@ -1,193 +1,103 @@
 package fr.amu.iut.bomberman.view;
 
-import fr.amu.iut.bomberman.model.map.IMap;
-import fr.amu.iut.bomberman.model.map.Block;
-import javafx.scene.layout.GridPane;
+import fr.amu.iut.bomberman.model.map.GameMap;
+import fr.amu.iut.bomberman.model.map.Tile;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.effect.DropShadow;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Vue responsable de l'affichage de la carte de jeu.
- * Respecte le principe de séparation des responsabilités (MVC).
+ * Vue de la carte de jeu Bomberman.
+ * Gère l'affichage graphique de la carte et des éléments du jeu.
  */
-public class MapView extends GridPane implements IMapView {
-    private final IMap map;
-    private static final int CELL_SIZE = 32;
+public class MapView extends Canvas {
+    private static final int TILE_SIZE = 32;
+    private final GameMap map;
+    private final GraphicsContext gc;
+    private final Map<Tile.TileType, Image> tileImages;
 
-    public MapView(IMap map) {
+    /**
+     * Constructeur de MapView.
+     * @param map La carte à afficher
+     */
+    public MapView(GameMap map) {
         this.map = map;
-        this.setHgap(1);
-        this.setVgap(1);
-        this.setStyle("-fx-background-color: #2d5016;"); // Vert foncé comme fond
-        drawMap();
-    }
+        this.gc = getGraphicsContext2D();
 
-    @Override
-    public void refreshBlock(int x, int y) {
-        // Vérification que la position est valide
-        if (map.isValidPosition(x, y)) {
-            // Rechercher le rectangle existant à cette position
-            Rectangle existingRect = findRectangleAt(x, y);
+        // Initialisation de la taille du canvas
+        setWidth(map.getWidth() * TILE_SIZE);
+        setHeight(map.getHeight() * TILE_SIZE);
 
-            if (existingRect != null) {
-                // Mettre à jour la couleur du rectangle existant
-                updateRectangleAppearance(existingRect, map.getBlock(x, y));
-            } else {
-                // Si pas de rectangle trouvé, en créer un nouveau
-                Rectangle newRect = createRectangleForBlock(map.getBlock(x, y));
-                this.add(newRect, x, y);
-            }
-        }
+        // Initialisation des images des tuiles
+        this.tileImages = new HashMap<>();
+        initializeTileImages();
     }
 
     /**
-     * Trouve le rectangle à une position spécifique dans la grille.
-     * @param x Coordonnée X
-     * @param y Coordonnée Y
-     * @return Le rectangle à cette position, null si non trouvé
+     * Initialise les images des différents types de tuiles.
      */
-    private Rectangle findRectangleAt(int x, int y) {
-        return getChildren().stream()
-                .filter(node -> node instanceof Rectangle)
-                .map(node -> (Rectangle) node)
-                .filter(rect -> {
-                    Integer colIndex = GridPane.getColumnIndex(rect);
-                    Integer rowIndex = GridPane.getRowIndex(rect);
-                    return (colIndex != null ? colIndex : 0) == x &&
-                            (rowIndex != null ? rowIndex : 0) == y;
-                })
-                .findFirst()
-                .orElse(null);
+    private void initializeTileImages() {
+        // Création d'images simples pour chaque type de tuile
+        tileImages.put(Tile.TileType.FLOOR, createColoredTile(Color.WHITE));
+        tileImages.put(Tile.TileType.WALL, createColoredTile(Color.GRAY));
+        tileImages.put(Tile.TileType.DESTRUCTIBLE_WALL, createColoredTile(Color.LIGHTGRAY));
+        tileImages.put(Tile.TileType.BOMB, createColoredTile(Color.BLACK));
+        tileImages.put(Tile.TileType.EXPLOSION, createColoredTile(Color.RED));
+        tileImages.put(Tile.TileType.POWERUP, createColoredTile(Color.GOLD));
     }
 
     /**
-     * Met à jour l'apparence d'un rectangle selon le type de bloc.
-     * @param rectangle Le rectangle à mettre à jour
-     * @param block Le bloc correspondant
+     * Crée une image de tuile colorée.
+     * @param color La couleur de la tuile
+     * @return Image de la tuile
      */
-    private void updateRectangleAppearance(Rectangle rectangle, Block block) {
-        if (rectangle == null || block == null) return;
+    private Image createColoredTile(Color color) {
+        Canvas tempCanvas = new Canvas(TILE_SIZE, TILE_SIZE);
+        GraphicsContext tempGc = tempCanvas.getGraphicsContext2D();
+        tempGc.setFill(color);
+        tempGc.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
 
-        // Mise à jour de la couleur selon le type de bloc
-        switch (block.getType()) {
-            case EMPTY:
-                rectangle.setFill(Color.rgb(45, 80, 22)); // Vert foncé pour l'herbe
-                rectangle.setStroke(Color.rgb(35, 70, 12));
-                break;
-            case DESTRUCTIBLE:
-                rectangle.setFill(Color.rgb(139, 69, 19)); // Marron pour les caisses
-                rectangle.setStroke(Color.rgb(101, 49, 9));
-                break;
-            case INDESTRUCTIBLE:
-                rectangle.setFill(Color.rgb(105, 105, 105)); // Gris pour les murs
-                rectangle.setStroke(Color.rgb(75, 75, 75));
-                break;
-            default:
-                rectangle.setFill(Color.WHITE);
-                rectangle.setStroke(Color.BLACK);
-        }
+        // Ajout d'une bordure pour mieux voir les tuiles
+        tempGc.setStroke(Color.BLACK);
+        tempGc.strokeRect(0, 0, TILE_SIZE, TILE_SIZE);
 
-        // Ajout d'un effet visuel pour différencier les types
-        addVisualEffects(rectangle, block);
-    }
-
-    /**
-     * Crée un nouveau rectangle pour un bloc donné.
-     * @param block Le bloc pour lequel créer le rectangle
-     * @return Le rectangle créé
-     */
-    private Rectangle createRectangleForBlock(Block block) {
-        Rectangle rect = new Rectangle(CELL_SIZE, CELL_SIZE);
-        updateRectangleAppearance(rect, block);
-        return rect;
-    }
-
-    /**
-     * Ajoute des effets visuels selon le type de bloc.
-     * @param rectangle Le rectangle à styliser
-     * @param block Le bloc correspondant
-     */
-    private void addVisualEffects(Rectangle rectangle, Block block) {
-        if (rectangle == null || block == null) return;
-
-        switch (block.getType()) {
-            case EMPTY:
-                // Effet d'herbe avec un léger dégradé
-                rectangle.setStyle("-fx-effect: innershadow(gaussian, rgba(0,0,0,0.1), 2, 0.3, 0, 1);");
-                break;
-            case DESTRUCTIBLE:
-                // Effet de texture pour les caisses
-                rectangle.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0.5, 2, 2);");
-                break;
-            case INDESTRUCTIBLE:
-                // Effet métallique pour les murs
-                rectangle.setStyle("-fx-effect: innershadow(gaussian, rgba(255,255,255,0.1), 1, 0.8, 0, -1);");
-                break;
-        }
-    }
-
-    /**
-     * Dessine la carte complète en créant des rectangles colorés
-     * pour chaque type de bloc.
-     */
-    private void drawMap() {
-        this.getChildren().clear();
-
-        for (int x = 0; x < map.getWidth(); x++) {
-            for (int y = 0; y < map.getHeight(); y++) {
-                Rectangle rect = createBlockRectangle(map.getBlock(x, y));
-                this.add(rect, x, y);
-            }
-        }
-    }
-
-    /**
-     * Crée un rectangle visuel pour un bloc donné.
-     *
-     * @param block Le bloc à représenter visuellement
-     * @return Rectangle coloré selon le type de bloc
-     */
-    private Rectangle createBlockRectangle(fr.amu.iut.bomberman.model.map.Block block) {
-        Rectangle rect = new Rectangle(CELL_SIZE, CELL_SIZE);
-
-        switch (block.getType()) {
-            case EMPTY:
-                rect.setFill(Color.LIGHTGREEN);
-                rect.setStroke(Color.GREEN);
-                break;
-            case DESTRUCTIBLE:
-                rect.setFill(Color.SANDYBROWN);
-                rect.setStroke(Color.SADDLEBROWN);
-                addShadowEffect(rect);
-                break;
-            case INDESTRUCTIBLE:
-                rect.setFill(Color.DARKGRAY);
-                rect.setStroke(Color.GRAY);
-                addShadowEffect(rect);
-                break;
-        }
-
-        rect.setStrokeWidth(1);
-        return rect;
-    }
-
-    /**
-     * Ajoute un effet d'ombre aux blocs pour un meilleur rendu visuel.
-     */
-    private void addShadowEffect(Rectangle rect) {
-        DropShadow shadow = new DropShadow();
-        shadow.setColor(Color.BLACK);
-        shadow.setRadius(3);
-        shadow.setOffsetX(2);
-        shadow.setOffsetY(2);
-        rect.setEffect(shadow);
+        return tempCanvas.snapshot(null, null);
     }
 
     /**
      * Met à jour l'affichage de la carte.
      */
     public void update() {
-        drawMap();
+        gc.clearRect(0, 0, getWidth(), getHeight());
+
+        for (int y = 0; y < map.getHeight(); y++) {
+            for (int x = 0; x < map.getWidth(); x++) {
+                Tile tile = map.getTile(x, y);
+                if (tile != null) {
+                    Image image = tileImages.get(tile.getType());
+                    if (image != null) {
+                        gc.drawImage(image, x * TILE_SIZE, y * TILE_SIZE);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return La largeur de la vue en pixels
+     */
+    public double getViewWidth() {
+        return map.getWidth() * TILE_SIZE;
+    }
+
+    /**
+     * @return La hauteur de la vue en pixels
+     */
+    public double getViewHeight() {
+        return map.getHeight() * TILE_SIZE;
     }
 }
