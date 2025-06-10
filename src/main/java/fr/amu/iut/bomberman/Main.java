@@ -30,7 +30,7 @@ public class Main extends Application {
         controller.setPrimaryStage(primaryStage);
 
         // Configure et affiche la fenêtre principale
-        primaryStage.setTitle("Bomberman");
+        primaryStage.setTitle("Super Bomberman");
         primaryStage.setScene(new Scene(root));
         primaryStage.setMaximized(true);
         primaryStage.show();
