@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Vue de la carte de jeu Bomberman.
@@ -42,12 +43,34 @@ public class MapView extends Canvas {
      */
     private void initializeTileImages() {
         // Création d'images simples pour chaque type de tuile
-        tileImages.put(Tile.TileType.FLOOR, createColoredTile(Color.WHITE));
-        tileImages.put(Tile.TileType.WALL, createColoredTile(Color.GRAY));
-        tileImages.put(Tile.TileType.DESTRUCTIBLE_WALL, createColoredTile(Color.LIGHTGRAY));
+        tileImages.put(Tile.TileType.FLOOR, loadImage("/assets/tiles/000-floor.png"));
+        tileImages.put(Tile.TileType.WALL, loadImage("/assets/tiles/001-durable_wall.png"));
+        tileImages.put(Tile.TileType.DESTRUCTIBLE_WALL, loadImage("/assets/tiles/025-noteblock.png"));
         tileImages.put(Tile.TileType.BOMB, createColoredTile(Color.BLACK));
         tileImages.put(Tile.TileType.EXPLOSION, createColoredTile(Color.RED));
         tileImages.put(Tile.TileType.POWERUP, createColoredTile(Color.GOLD));
+    }
+
+    /**
+     * Charge une image à partir du chemin spécifié dans les ressources de l'application.
+     *
+     * Cette méthode tente de charger une image située dans le chemin fourni.
+     * Si l'image ne peut pas être chargée pour une raison quelconque, une erreur est
+     * imprimée dans la console et une image par défaut est retournée.
+     *
+     * @param path Le chemin vers l'image à charger, relatif au classpath de l'application.
+     * @return L'image chargée depuis le chemin spécifié. En cas d'erreur, une image
+     *         par défaut de couleur magenta est retournée pour indiquer visuellement une erreur.
+     */
+    private Image loadImage(String path) {
+        try {
+            return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'image: " + path);
+            e.printStackTrace();
+            // Retourner une image par défaut en cas d'erreur
+            return createColoredTile(Color.MAGENTA); // Par exemple, une couleur voyante pour indiquer une erreur
+        }
     }
 
     /**

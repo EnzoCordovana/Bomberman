@@ -14,8 +14,6 @@ import java.util.ResourceBundle;
 public class SettingsController implements Initializable {
 
     @FXML private ComboBox<String> difficultyCombo;
-    @FXML private Spinner<Integer> playerCountSpinner;
-    @FXML private Spinner<Integer> gameDurationSpinner;
     @FXML private CheckBox powerupsCheckbox;
     @FXML private CheckBox obstaclesCheckbox;
 
@@ -56,9 +54,6 @@ public class SettingsController implements Initializable {
      * @param resources Les ressources utilisées pour localiser l'objet racine
      */    @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialiser les spinners
-        initializeSpinners();
-
         // Charger les paramètres actuels
         loadSettings();
     }
@@ -71,29 +66,8 @@ public class SettingsController implements Initializable {
     }
 
     /**
-     * Initialise les Spinners avec leurs valeurs et limites.     */
-    private void initializeSpinners() {
-        // Spinner pour le nombre de joueurs
-        SpinnerValueFactory<Integer> playerCountFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 4, 2);
-        playerCountSpinner.setValueFactory(playerCountFactory);
-
-        // Spinner pour la durée du jeu
-        SpinnerValueFactory<Integer> durationFactory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 60, 10);
-        gameDurationSpinner.setValueFactory(durationFactory);
-    }
-
-    /**
      * Charge les paramètres actuels depuis le modèle.     */
     private void loadSettings() {
-        // Exemple de chargement - à adapter avec votre modèle
-        //gameSettings = GameSettings.getInstance();
-        // Paramètres de jeu        difficultyCombo.getSelectionModel().select(1); // Moyen par défaut
-        playerCountSpinner.getValueFactory().setValue(2);
-        gameDurationSpinner.getValueFactory().setValue(10);
-        powerupsCheckbox.setSelected(true);
-        obstaclesCheckbox.setSelected(true);
 
         // Joueur 1 (ZQSD)
         moveUpField1.setText("Z");

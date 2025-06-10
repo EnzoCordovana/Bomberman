@@ -6,41 +6,45 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
-/**
- * Classe principale de l'application Bomberman.
- * Point d'entrée de l'application JavaFX.
- */
+import java.util.Objects;
+
 public class Main extends Application {
 
-    /**
-     * Méthode appelée au démarrage de l'application JavaFX.
-     * Initialise et affiche la vue du menu principal.
-     * @param primaryStage La fenêtre principale de l'application
-     * @throws Exception En cas d'erreur de chargement des ressources
-     */
+    private static Stage primaryStage;
+    private static Scene scene;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Charge la vue du menu principal
+        Main.primaryStage = primaryStage;
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MenuView.fxml"));
         Parent root = loader.load();
 
-        // Passe la référence du stage au contrôleur
+        scene = new Scene(root);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/styles.css")).toExternalForm());
+        primaryStage.setTitle("Super Bomberman");
+        primaryStage.setScene(scene);
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.setMaximized(true);
+        primaryStage.resizableProperty().setValue(Boolean.FALSE);
+        primaryStage.show();
+
         MenuController controller = loader.getController();
         controller.setPrimaryStage(primaryStage);
-
-        // Configure et affiche la fenêtre principale
-        primaryStage.setTitle("Super Bomberman");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.setMaximized(true);
-        primaryStage.show();
     }
 
-    /**
-     * Point d'entrée de l'application.
-     * @param args Les arguments de la ligne de commande
-     */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static void changeView(String fxmlFile) {
+        try {
+            Parent root = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource("/view/" + fxmlFile)));
+            scene.setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

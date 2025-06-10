@@ -2,12 +2,28 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import fr.amu.iut.bomberman.components.ExitButton?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="fr.amu.iut.bomberman.controller.MenuController">
-    <Label text="Bomberman" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-    <Button fx:id="settingsButton" text="Paramètres" onAction="#handleSettingsButton"/>
-    <Button fx:id="playButton" text="Jouer" onAction="#handlePlayButton"/>
-    <Button fx:id="profileButton" text="Profils" onAction="#handleProfileButton"/>
-    <Button fx:id="quitButton" text="Quitter" onAction="#handleQuitButton"/>
-</VBox>
+<BorderPane fx:id="container" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.amu.iut.bomberman.controller.MenuController">
+        <top>
+            <HBox alignment="CENTER">
+                <Label style="-fx-font-size: 72px; -fx-font-weight: bold; -fx-text-fill: white;" text="SUPER BOMBERMAN" />
+            </HBox>
+        </top>
+        <center>
+            <VBox spacing="10" alignment="CENTER">
+                <VBox spacing="10">
+                    <HBox alignment="CENTER">
+                        <Button style="-fx-pref-width: 300; -fx-pref-height: 50; -fx-font-size: 18" onAction="#handlePlayButton" text="Jouer" styleClass="custom-button"/>
+                    </HBox>
+                    <HBox alignment="CENTER">
+                        <Button style="-fx-pref-width: 300; -fx-pref-height: 50; -fx-font-size: 18" onAction="#handleProfileButton" text="Profils" styleClass="custom-button"/>
+                    </HBox>
+                </VBox>
+                <HBox spacing="10" alignment="CENTER">
+                    <Button style="-fx-pref-width: 145; -fx-pref-height: 50; -fx-font-size: 18" onAction="#handleSettingsButton" text="Paramètres" styleClass="custom-button"/>
+                    <Button style="-fx-pref-width: 145; -fx-pref-height: 50; -fx-font-size: 18" onAction="#handleQuitButton" text="Quitter" styleClass="custom-button"/>
+                </HBox>
+            </VBox>
+        </center>
+    </BorderPane>

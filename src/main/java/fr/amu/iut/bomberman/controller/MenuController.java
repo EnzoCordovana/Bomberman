@@ -4,27 +4,25 @@ import fr.amu.iut.bomberman.components.ExitButton;
 import fr.amu.iut.bomberman.view.ViewManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import java.net.URL;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * Contrôleur pour la vue du menu principal.
  * Gère les interactions utilisateur dans le menu principal.
  */
-public class MenuController {
+public class MenuController implements Initializable {
 
+    @FXML
+    public BorderPane container;
     /** Référence à la fenêtre principale de l'application */
     private Stage primaryStage;
-
-    @FXML
-    private Button playButton;
-
-    @FXML
-    private Button settingsButton;
-
-    @FXML
-    private Button profileButton;
 
     @FXML
     private Button quitButton;
@@ -44,12 +42,30 @@ public class MenuController {
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
         if (quitButton != null) {
-            VBox parent = (VBox) quitButton.getParent();
+            GridPane parent = (GridPane) quitButton.getParent();
             if (parent != null) {
-                ExitButton exitButton = new ExitButton(primaryStage);
-                parent.getChildren().set(parent.getChildren().indexOf(quitButton), exitButton);
+                int index = parent.getChildren().indexOf(quitButton);
+                parent.getChildren().set(index, quitButton);
             }
         }
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // Charger l'image de fond
+        Image backgroundImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/wallpaper.jpg")));
+
+        // Créer un BackgroundImage avec l'image chargée
+        BackgroundImage bgImage = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
+        );
+
+        // Appliquer l'image de fond au VBox racine
+        container.setBackground(new Background(bgImage));
     }
 
     /**

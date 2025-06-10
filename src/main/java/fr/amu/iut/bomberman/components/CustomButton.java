@@ -1,6 +1,7 @@
 package fr.amu.iut.bomberman.components;
 
 import javafx.scene.control.Button;
+import javafx.scene.Scene;
 
 /**
  * CustomButton est une classe abstraite qui étend la classe Button de JavaFX.
@@ -30,38 +31,16 @@ public abstract class CustomButton extends Button {
      * Initialise les propriétés du bouton.
      */
     private void initialize() {
-        // Ajouter une classe CSS pour le style personnalisé
-        this.getStyleClass().add("custom-button");
-
-        // Définir des styles par défaut
-        this.setStyle("-fx-background-color: #ff7f7f; " +
-                "-fx-text-fill: white; " +
-                "-fx-font-weight: bold; " +
-                "-fx-font-size: 14px; " +
-                "-fx-pref-width: 150px; " +
-                "-fx-pref-height: 40px;");
-
-        // Ajouter des effets de survol
-        this.setOnMouseEntered(event -> {
-            this.setStyle("-fx-background-color: #ff5a5a; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-font-weight: bold; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-pref-width: 150px; " +
-                    "-fx-pref-height: 40px;");
-        });
-
-        this.setOnMouseExited(event -> {
-            this.setStyle("-fx-background-color: #ff7f7f; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-font-weight: bold; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-pref-width: 150px; " +
-                    "-fx-pref-height: 40px;");
-        });
-
-        // Méthode abstraite pour définir l'action du bouton
         setButtonAction();
+    }
+
+    /**
+     * Méthode statique pour charger le fichier CSS dans la scène.
+     *
+     * @param scene La scène à laquelle ajouter le fichier CSS.
+     */
+    public static void loadCSS(Scene scene) {
+        scene.getStylesheets().add(CustomButton.class.getResource("/styles/styles.css").toExternalForm());
     }
 
     /**
