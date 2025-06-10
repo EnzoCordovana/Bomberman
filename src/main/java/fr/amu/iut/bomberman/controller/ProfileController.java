@@ -43,7 +43,7 @@ public class ProfileController implements Initializable {
         loadProfileData();
 
         // Charger l'avatar par défaut
-        avatarImage.setImage(new Image(getClass().getResourceAsStream("/assets/default_avatar.png")));
+        avatarImage.setImage(new Image(getClass().getResourceAsStream("/assets/default_avatar.jpg")));
     }
 
     /**
