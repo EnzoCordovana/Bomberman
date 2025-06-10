@@ -3,6 +3,7 @@ module Bomberman {
     requires javafx.graphics;
     requires javafx.controls;
     requires javafx.media;
+    requires java.desktop;
 
     opens fr.amu.iut.bomberman to javafx.fxml;
     opens fr.amu.iut.bomberman.controller to javafx.fxml;
