@@ -1,108 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.collections.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
-<VBox xmlns="http://javafx.com/javafx/8.0.171"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="fr.amu.iut.bomberman.controller.SettingsController"
-      spacing="20" style="-fx-background-color: #222222; -fx-padding: 20;">
+<VBox spacing="20" style="-fx-background-color: #222222; -fx-padding: 20;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.amu.iut.bomberman.controller.SettingsController">
 
-    <Label text="Paramètres" style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;"/>
+    <Label style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;" text="Paramètres" />
 
     <TabPane style="-fx-background-color: #333333;">
         <tabs>
-            <Tab text="Jeu">
-                <VBox spacing="10" style="-fx-padding: 10;">
-                    <Label text="Paramètres de jeu" style="-fx-text-fill: white; -fx-font-size: 18;"/>
+            <Tab closable="false" text="gameplay">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <Label style="-fx-text-fill: white; -fx-font-size: 18;" text="Paramètres de jeu" />
 
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Difficulté:" style="-fx-text-fill: white;"/>
-                        <ComboBox fx:id="difficultyCombo" style="-fx-background-color: #444444; -fx-text-fill: white;">
-                            <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Facile"/>
-                                    <String fx:value="Moyen"/>
-                                    <String fx:value="Difficile"/>
-                                    <String fx:value="Expert"/>
-                                </FXCollections>
-                            </items>
-                        </ComboBox>
-                    </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label style="-fx-text-fill: white;" text="Difficulté:" />
+                    <ComboBox fx:id="difficultyCombo" style="-fx-background-color: #444444; -fx-text-fill: white;">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Facile" />
+                                <String fx:value="Moyen" />
+                                <String fx:value="Difficile" />
+                                <String fx:value="Expert" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label style="-fx-text-fill: white;" text="Nombre de joueurs:" />
+                    <Spinner fx:id="playerCountSpinner" style="-fx-background-color: #444444; -fx-text-fill: white;" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label style="-fx-text-fill: white;" text="Durée de la partie (min):" />
+                    <Spinner fx:id="gameDurationSpinner" style="-fx-background-color: #444444; -fx-text-fill: white;" />
+                </HBox>
+                <CheckBox fx:id="powerupsCheckbox" style="-fx-text-fill: white;" text="Activer les power-ups" />
+                <CheckBox fx:id="obstaclesCheckbox" style="-fx-text-fill: white;" text="Activer les obstacles" />
+            </VBox>
+            </Tab>
+            <Tab closable="false" text="manette">
 
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Nombre de joueurs:" style="-fx-text-fill: white;"/>
-                        <Spinner fx:id="playerCountSpinner" style="-fx-background-color: #444444; -fx-text-fill: white;"/>
-                    </HBox>
+            </Tab>
+            <Tab closable="false" text="clavier">
+                <VBox spacing="30">
+                    <!-- Joueur 1 -->
+                    <VBox>
+                        <Label style="-fx-text-fill: white; -fx-font-size: 18;" text="Joueur 1" />
+                        <Separator />
+                        <GridPane hgap="10" vgap="10">
+                            <Label style="-fx-text-fill: white;" text="Déplacement haut:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="moveUpField1" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Durée de la partie (min):" style="-fx-text-fill: white;"/>
-                        <Spinner fx:id="gameDurationSpinner" style="-fx-background-color: #444444; -fx-text-fill: white;"/>
-                    </HBox>
+                            <Label style="-fx-text-fill: white;" text="Déplacement bas:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="moveDownField1" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                    <CheckBox fx:id="powerupsCheckbox" text="Activer les power-ups" style="-fx-text-fill: white;"/>
-                    <CheckBox fx:id="obstaclesCheckbox" text="Activer les obstacles" style="-fx-text-fill: white;"/>
+                            <Label style="-fx-text-fill: white;" text="Déplacement gauche:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="moveLeftField1" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement droite:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="moveRightField1" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                            <Label style="-fx-text-fill: white;" text="Poser une bombe:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                            <TextField fx:id="placeBombField1" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                        </GridPane>
+                    </VBox>
+                    <!-- Joueur 2 -->
+                    <VBox>
+                        <Label style="-fx-text-fill: white; -fx-font-size: 18;" text="Joueur 2" />
+                        <Separator />
+                        <GridPane hgap="10" vgap="10">
+                            <Label style="-fx-text-fill: white;" text="Déplacement haut:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="moveUpField2" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement bas:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="moveDownField2" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement gauche:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="moveLeftField2" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement droite:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="moveRightField2" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                            <Label style="-fx-text-fill: white;" text="Poser une bombe:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                            <TextField fx:id="placeBombField2" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                        </GridPane>
+                    </VBox>
+                    <!-- Joueur 3 -->
+                    <VBox>
+                        <Label style="-fx-text-fill: white; -fx-font-size: 18;" text="Joueur 3" />
+                        <Separator />
+                        <GridPane hgap="10" vgap="10">
+                            <Label style="-fx-text-fill: white;" text="Déplacement haut:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="moveUpField3" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement bas:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="moveDownField3" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement gauche:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="moveLeftField3" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement droite:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="moveRightField3" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                            <Label style="-fx-text-fill: white;" text="Poser une bombe:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                            <TextField fx:id="placeBombField3" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                        </GridPane>
+                    </VBox>
+                    <!-- Joueur 4 -->
+                    <VBox>
+                        <Label style="-fx-text-fill: white; -fx-font-size: 18;" text="Joueur 4" />
+                        <Separator />
+                        <GridPane hgap="10" vgap="10">
+                            <Label style="-fx-text-fill: white;" text="Déplacement haut:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="moveUpField4" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement bas:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="moveDownField4" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement gauche:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="moveLeftField4" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <Label style="-fx-text-fill: white;" text="Déplacement droite:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="moveRightField4" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                            <Label style="-fx-text-fill: white;" text="Poser une bombe:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                            <TextField fx:id="placeBombField4" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                        </GridPane>
+                    </VBox>
                 </VBox>
             </Tab>
+            <Tab closable="false" text="audio" />
 
-            <Tab text="Contrôles">
-                <VBox spacing="10" style="-fx-padding: 10;">
-                    <Label text="Configuration des contrôles" style="-fx-text-fill: white; -fx-font-size: 18;"/>
+            <Tab closable="false" text="video" />
 
-                    <GridPane hgap="10" vgap="10">
-                        <Label text="Déplacement haut:" style="-fx-text-fill: white;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <TextField fx:id="moveUpField" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                        <Label text="Déplacement bas:" style="-fx-text-fill: white;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <TextField fx:id="moveDownField" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                        <Label text="Déplacement gauche:" style="-fx-text-fill: white;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <TextField fx:id="moveLeftField" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                        <Label text="Déplacement droite:" style="-fx-text-fill: white;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <TextField fx:id="moveRightField" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                        <Label text="Poser une bombe:" style="-fx-text-fill: white;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <TextField fx:id="placeBombField" style="-fx-background-color: #444444; -fx-text-fill: white;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-                    </GridPane>
-
-                    <Button text="Réinitialiser" onAction="#resetControls" style="-fx-background-color: #444444; -fx-text-fill: white;"/>
-                </VBox>
-            </Tab>
-
-            <Tab text="Audio">
-                <VBox spacing="10" style="-fx-padding: 10;">
-                    <Label text="Paramètres audio" style="-fx-text-fill: white; -fx-font-size: 18;"/>
-
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Volume général:" style="-fx-text-fill: white;"/>
-                        <Slider fx:id="masterVolumeSlider" min="0" max="100" value="70" style="-fx-background-color: #444444;"/>
-                        <Label fx:id="masterVolumeLabel" text="70%" style="-fx-text-fill: white;"/>
-                    </HBox>
-
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Volume musique:" style="-fx-text-fill: white;"/>
-                        <Slider fx:id="musicVolumeSlider" min="0" max="100" value="50" style="-fx-background-color: #444444;"/>
-                        <Label fx:id="musicVolumeLabel" text="50%" style="-fx-text-fill: white;"/>
-                    </HBox>
-
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Volume effets:" style="-fx-text-fill: white;"/>
-                        <Slider fx:id="effectsVolumeSlider" min="0" max="100" value="80" style="-fx-background-color: #444444;"/>
-                        <Label fx:id="effectsVolumeLabel" text="80%" style="-fx-text-fill: white;"/>
-                    </HBox>
-
-                    <CheckBox fx:id="muteCheckbox" text="Muet" style="-fx-text-fill: white;"/>
-                </VBox>
-            </Tab>
+            <Tab closable="false" text="plus" />
         </tabs>
     </TabPane>
-
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Annuler" onAction="#handleCancel" style="-fx-background-color: #444444; -fx-text-fill: white;"/>
-        <Button text="Appliquer" onAction="#handleApply" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+    <HBox>
+        <HBox spacing="10">
+            <Button text="retour" onAction="#handleCancel" style="-fx-background-color: #444444; -fx-text-fill: white;"/>
+            <Button text="réinitialiser paramètres par défaut" style="-fx-background-color: #444444; -fx-text-fill: white;"/>
+        </HBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button onAction="#handleApply" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Appliquer" />
     </HBox>
 </VBox>
