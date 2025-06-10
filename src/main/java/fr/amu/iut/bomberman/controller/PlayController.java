@@ -1,5 +1,7 @@
 package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.model.map.Map;
+import fr.amu.iut.bomberman.view.MapView;
 import fr.amu.iut.bomberman.view.ViewManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -13,6 +15,7 @@ import java.util.ResourceBundle;
 /**
  * Contrôleur pour la vue principale du jeu (PlayView).
  * Gère l'interface utilisateur pendant une partie de Bomberman.
+ * Respecte le pattern MVC en séparant la logique de contrôle de la vue.
  */
 public class PlayController implements Initializable {
 
@@ -22,8 +25,9 @@ public class PlayController implements Initializable {
     @FXML private Label scoreLabel;
     @FXML private Label livesLabel;
 
+    private Map map;
+    private MapView mapView;
     private Stage primaryStage;
-    //private GameModel gameModel;
 
     /**
      * Initialise le contrôleur et configure les éléments de l'interface.
@@ -32,10 +36,20 @@ public class PlayController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialisation des composants
+        initializeMap();
         setupGameArea();
         updatePlayerList();
         startGameTimer();
+    }
+
+    /**
+     * Initialise la carte de jeu avec des dimensions standard de Bomberman.
+     */
+    private void initializeMap() {
+        map = new Map();
+        // Dimensions classiques d'une carte Bomberman (impaires pour le gameplay)
+        map.initialize(15, 15);
+        mapView = new MapView(map);
     }
 
     /**
@@ -47,25 +61,38 @@ public class PlayController implements Initializable {
     }
 
     /**
-     * Configure la zone de jeu principale.
+     * Configure la zone de jeu principale en y ajoutant la carte.
      */
     private void setupGameArea() {
-        // Configuration initiale de la zone de jeu
-        gameArea.setPrefSize(800, 600);
-        // Ici vous ajouteriez les éléments du jeu (carte, joueurs, etc.)
+        // Nettoyage de la zone de jeu
+        gameArea.getChildren().clear();
+
+        // Ajout de la vue de la carte
+        if (mapView != null) {
+            // Centrer la carte dans la zone de jeu
+            double centerX = (gameArea.getPrefWidth() - (map.getWidth() * 32)) / 2;
+            double centerY = (gameArea.getPrefHeight() - (map.getHeight() * 32)) / 2;
+
+            mapView.setLayoutX(Math.max(0, centerX));
+            mapView.setLayoutY(Math.max(0, centerY));
+
+            gameArea.getChildren().add(mapView);
+        }
     }
 
     /**
      * Met à jour la liste des joueurs affichée.
      */
     private void updatePlayerList() {
-        // Nettoyer la liste actuelle
         playersList.getChildren().clear();
 
-        // Ajouter les informations des joueurs (exemple)
+        // Configuration des couleurs pour chaque joueur comme dans Super Bomberman
+        String[] playerColors = {"#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A"};
+        String[] playerNames = {"Joueur 1", "Joueur 2", "Joueur 3", "Joueur 4"};
+
         for (int i = 0; i < 4; i++) {
-            Label playerLabel = new Label("Joueur " + (i+1) + ": 0 pts");
-            playerLabel.setStyle("-fx-text-fill: white;");
+            Label playerLabel = new Label(playerNames[i] + ": 0 pts");
+            playerLabel.setStyle("-fx-text-fill: " + playerColors[i] + "; -fx-font-weight: bold;");
             playersList.getChildren().add(playerLabel);
         }
     }
@@ -74,9 +101,11 @@ public class PlayController implements Initializable {
      * Démarre le chronomètre du jeu.
      */
     private void startGameTimer() {
-        // Implémentation du chronomètre
-        // Exemple simple avec un Timeline
-        // Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), ...));
+        // Pour le moment, affichage statique
+        // Dans une version complète, vous utiliseriez Timeline
+        timeLabel.setText("Temps: 0:00");
+        scoreLabel.setText("Score: 0");
+        livesLabel.setText("Vies: 3");
     }
 
     /**
@@ -84,8 +113,8 @@ public class PlayController implements Initializable {
      */
     @FXML
     private void handlePause() {
-        // Logique pour mettre le jeu en pause
         System.out.println("Jeu en pause");
+        // Ici vous pauseriez les animations et les timers
     }
 
     /**
@@ -104,8 +133,17 @@ public class PlayController implements Initializable {
      * @param lives Le nombre de vies restantes
      */
     public void updateGameInfo(int score, String time, int lives) {
-        scoreLabel.setText("Score: " + score);
-        timeLabel.setText("Temps: " + time);
-        livesLabel.setText("Vies: " + lives);
+        if (scoreLabel != null) scoreLabel.setText("Score: " + score);
+        if (timeLabel != null) timeLabel.setText("Temps: " + time);
+        if (livesLabel != null) livesLabel.setText("Vies: " + lives);
+    }
+
+    /**
+     * Rafraîchit l'affichage de la carte.
+     */
+    public void refreshMap() {
+        if (mapView != null) {
+            mapView.update();
+        }
     }
 }
