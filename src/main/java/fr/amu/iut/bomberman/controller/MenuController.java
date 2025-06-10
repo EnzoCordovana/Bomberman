@@ -1,7 +1,11 @@
 package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.components.ExitButton;
 import fr.amu.iut.bomberman.view.ViewManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -12,6 +16,18 @@ public class MenuController {
 
     /** Référence à la fenêtre principale de l'application */
     private Stage primaryStage;
+
+    @FXML
+    private Button playButton;
+
+    @FXML
+    private Button settingsButton;
+
+    @FXML
+    private Button profileButton;
+
+    @FXML
+    private Button quitButton;
 
     /**
      * Méthode appelée lors du clic sur le bouton "Jouer"
@@ -27,6 +43,13 @@ public class MenuController {
      */
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        if (quitButton != null) {
+            VBox parent = (VBox) quitButton.getParent();
+            if (parent != null) {
+                ExitButton exitButton = new ExitButton(primaryStage);
+                parent.getChildren().set(parent.getChildren().indexOf(quitButton), exitButton);
+            }
+        }
     }
 
     /**
@@ -62,6 +85,10 @@ public class MenuController {
      */
     @FXML
     private void handleQuitButton() {
-        primaryStage.close();
+        if (primaryStage != null) {
+            primaryStage.close();
+        } else {
+            Platform.exit();
+        }
     }
 }
