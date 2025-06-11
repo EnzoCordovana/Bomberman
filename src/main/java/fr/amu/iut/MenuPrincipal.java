@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -18,6 +19,8 @@ import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 public class MenuPrincipal extends Application {
@@ -47,10 +50,194 @@ public class MenuPrincipal extends Application {
     private boolean isCaptureTheFlagMode = false;
     protected List<Flag> flags;
 
+    private Map<String, Image> spriteMap = new HashMap<>();
+    private Image[] playerSprites = new Image[4];
+    private Image[] bombFrames;
+    private Image[] explosionFrames;
+    private Image groundTile, indestructibleWall, destructibleWall;
+    private Image rangePowerup, bombSpeedPowerup, moveSpeedPowerup;
+    private Image[] flagSprites = new Image[4];
+
+    private void debugResources() {
+        System.out.println("=== DEBUGGING RESOURCES ===");
+
+        // Check if images directory exists
+        URL imagesDir = getClass().getResource("/images");
+        if (imagesDir == null) {
+            System.err.println("ERROR: /images directory not found on classpath!");
+
+            // Try without leading slash
+            imagesDir = getClass().getResource("images");
+            if (imagesDir != null) {
+                System.out.println("Found images directory at: " + imagesDir);
+                System.out.println("Try using paths without leading slash: 'images/player_red.png'");
+            }
+        } else {
+            System.out.println("Images directory found at: " + imagesDir);
+        }
+
+        // Check class location
+        URL classLocation = getClass().getResource("");
+        System.out.println("Class is located at: " + classLocation);
+
+        // List what's in the root
+        URL root = getClass().getResource("/");
+        System.out.println("Root classpath: " + root);
+
+        System.out.println("=== END DEBUG ===");
+    }
+
+    private void loadSprites() {
+        try {
+            // Player sprites
+            for (int i = 0; i < 4; i++) {
+                String color = switch(i) {
+                    case 0 -> "red";
+                    case 1 -> "blue";
+                    case 2 -> "green";
+                    case 3 -> "yellow";
+                    default -> "red";
+                };
+                String playerPath = "/images/player_" + color + ".png";
+                System.out.println("Loading player sprite: " + playerPath);
+                InputStream stream = getClass().getResourceAsStream(playerPath);
+                if (stream == null) {
+                    System.err.println("ERROR: Could not find resource: " + playerPath);
+                    continue;
+                }
+                playerSprites[i] = new Image(stream);
+            }
+
+            // Environment sprites
+            String[] spritePaths = {
+                    "/images/ground.png",
+                    "/images/wall_indestructible.png",
+                    "/images/wall_destructible.png",
+                    "/images/powerup_range.png",
+                    "/images/powerup_bomb_speed.png",
+                    "/images/powerup_move_speed.png",
+                    "/images/bomb1.png",              // Index 6
+                    "/images/explosion1.png",         // Index 7
+                    "/images/explosion2.png",         // Index 8
+                    "/images/explosion3.png",         // Index 9
+                    "/images/explosion4.png",         // Index 10
+                    "/images/explosion5.png",         // Index 11
+                    "/images/explosion6.png",         // Index 12
+                    "/images/explosion7.png",         // Index 13
+                    "/images/bomb1.png",              // Index 14
+                    "/images/bomb2.png",              // Index 15
+                    "/images/bomb3.png",              // Index 16
+                    "/images/bomb4.png",              // Index 17
+                    "/images/bomb5.png",              // Index 18
+                    "/images/bomb6.png"               // Index 19
+            };
+
+            // Load basic environment sprites
+            System.out.println("Loading ground tile...");
+            InputStream groundStream = getClass().getResourceAsStream(spritePaths[0]);
+            if (groundStream == null) {
+                System.err.println("ERROR: Could not find resource: " + spritePaths[0]);
+            } else {
+                groundTile = new Image(groundStream);
+            }
+
+            System.out.println("Loading indestructible wall...");
+            InputStream wallStream = getClass().getResourceAsStream(spritePaths[1]);
+            if (wallStream == null) {
+                System.err.println("ERROR: Could not find resource: " + spritePaths[1]);
+            } else {
+                indestructibleWall = new Image(wallStream);
+            }
+
+            System.out.println("Loading destructible wall...");
+            InputStream destWallStream = getClass().getResourceAsStream(spritePaths[2]);
+            if (destWallStream == null) {
+                System.err.println("ERROR: Could not find resource: " + spritePaths[2]);
+            } else {
+                destructibleWall = new Image(destWallStream);
+            }
+
+            // Power-ups
+            System.out.println("Loading range powerup...");
+            InputStream rangePowerupStream = getClass().getResourceAsStream(spritePaths[3]);
+            if (rangePowerupStream == null) {
+                System.err.println("ERROR: Could not find resource: " + spritePaths[3]);
+            } else {
+                rangePowerup = new Image(rangePowerupStream);
+            }
+
+            System.out.println("Loading bomb speed powerup...");
+            InputStream bombSpeedPowerupStream = getClass().getResourceAsStream(spritePaths[4]);
+            if (bombSpeedPowerupStream == null) {
+                System.err.println("ERROR: Could not find resource: " + spritePaths[4]);
+            } else {
+                bombSpeedPowerup = new Image(bombSpeedPowerupStream);
+            }
+
+            System.out.println("Loading move speed powerup...");
+            InputStream moveSpeedPowerupStream = getClass().getResourceAsStream(spritePaths[5]);
+            if (moveSpeedPowerupStream == null) {
+                System.err.println("ERROR: Could not find resource: " + spritePaths[5]);
+            } else {
+                moveSpeedPowerup = new Image(moveSpeedPowerupStream);
+            }
+
+            // Explosion frames
+            explosionFrames = new Image[7];
+            for (int i = 0; i < 7; i++) {
+                int spriteIndex = i + 7; // spritePaths indices 7-13 for explosion1-7
+                System.out.println("Loading explosion frame " + (i + 1) + ": " + spritePaths[spriteIndex]);
+                InputStream explosionStream = getClass().getResourceAsStream(spritePaths[spriteIndex]);
+                if (explosionStream == null) {
+                    System.err.println("ERROR: Could not find resource: " + spritePaths[spriteIndex]);
+                } else {
+                    explosionFrames[i] = new Image(explosionStream);
+                }
+            }
+
+            // Bomb animation frames
+            bombFrames = new Image[7];
+            for (int i = 0; i < 6; i++) {
+                int spriteIndex = i + 14; // spritePaths indices 14-19 for bomb1-6
+                System.out.println("Loading bomb frame " + (i+1) + ": " + spritePaths[spriteIndex]);
+                InputStream bombFrameStream = getClass().getResourceAsStream(spritePaths[spriteIndex]);
+                if (bombFrameStream == null) {
+                    System.err.println("ERROR: Could not find resource: " + spritePaths[spriteIndex]);
+                } else {
+                    bombFrames[i] = new Image(bombFrameStream);
+                }
+            }
+
+            // Flags
+            for (int i = 0; i < 4; i++) {
+                String color = switch(i) {
+                    case 0 -> "red";
+                    case 1 -> "blue";
+                    case 2 -> "green";
+                    case 3 -> "yellow";
+                    default -> "red";
+                };
+                String flagPath = "/images/flag_" + color + ".png";
+                System.out.println("Loading flag sprite: " + flagPath);
+                InputStream flagStream = getClass().getResourceAsStream(flagPath);
+                if (flagStream == null) {
+                    System.err.println("ERROR: Could not find resource: " + flagPath);
+                } else {
+                    flagSprites[i] = new Image(flagStream);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error loading sprites: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        debugResources();
+        loadSprites();
         primaryStage.setTitle("Bomberman");
         primaryStage.setResizable(false);
 
@@ -1953,6 +2140,9 @@ public class MenuPrincipal extends Application {
             return;
         }
 
+        player.setDirection(dx, dy);
+        player.setMoving(true);
+
         int newX = player.x + dx;
         int newY = player.y + dy;
 
@@ -2127,103 +2317,143 @@ public class MenuPrincipal extends Application {
     }
 
     private void draw() {
-        // Clear canvas
-        gc.setFill(Color.DARKGREEN);
-        gc.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        // Clear the entire canvas first
+        gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        // Draw board
+        // Draw ground tiles - this should cover the entire canvas
         for (int y = 0; y < BOARD_HEIGHT; y++) {
             for (int x = 0; x < BOARD_WIDTH; x++) {
                 int cellX = x * CELL_SIZE;
                 int cellY = y * CELL_SIZE;
 
-                switch (board[y][x]) {
-                    case 1: // Fixed wall
-                        gc.setFill(Color.GRAY);
-                        gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
-                        break;
-                    case 2: // Destructible wall
-                        gc.setFill(Color.BROWN);
-                        gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
-                        break;
-                    case 3: // Range powerup
-                        gc.setFill(Color.LIGHTGREEN);
-                        gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
-                        gc.setFill(Color.PURPLE);
-                        gc.fillOval(cellX + 6, cellY + 6, CELL_SIZE - 12, CELL_SIZE - 12);
-                        break;
-                    case 4: // Bomb speed powerup
-                        gc.setFill(Color.LIGHTGREEN);
-                        gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
-                        gc.setFill(Color.CYAN);
-                        gc.fillOval(cellX + 6, cellY + 6, CELL_SIZE - 12, CELL_SIZE - 12);
-                        // Draw a small "B" in the center
-                        gc.setFill(Color.WHITE);
-                        gc.setFont(Font.font("Arial", FontWeight.BOLD, 10));
-                        gc.fillText("B", cellX + 12, cellY + 18);
-                        break;
-                    case 5: // Movement speed powerup
-                        gc.setFill(Color.LIGHTGREEN);
-                        gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
-                        gc.setFill(Color.YELLOW);
-                        gc.fillOval(cellX + 6, cellY + 6, CELL_SIZE - 12, CELL_SIZE - 12);
-                        // Draw a small "M" in the center
-                        gc.setFill(Color.BLACK);
-                        gc.setFont(Font.font("Arial", FontWeight.BOLD, 10));
-                        gc.fillText("M", cellX + 11, cellY + 18);
-                        break;
-                    default: // Empty space
-                        gc.setFill(Color.LIGHTGREEN);
-                        gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
-                        break;
+                // Always draw ground first
+                if (groundTile != null) {
+                    gc.drawImage(groundTile, cellX, cellY, CELL_SIZE, CELL_SIZE);
+                } else {
+                    gc.setFill(Color.LIGHTGREEN);
+                    gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
                 }
 
-                // Draw grid lines
-                gc.setStroke(Color.BLACK);
-                gc.strokeRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+                // Then draw walls/powerups on top
+                switch (board[y][x]) {
+                    case 1: // Fixed wall
+                        if (indestructibleWall != null) {
+                            gc.drawImage(indestructibleWall, cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        } else {
+                            gc.setFill(Color.GRAY);
+                            gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        }
+                        break;
+                    case 2: // Destructible wall
+                        if (destructibleWall != null) {
+                            gc.drawImage(destructibleWall, cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        } else {
+                            gc.setFill(Color.BROWN);
+                            gc.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        }
+                        break;
+                    case 3: // Range powerup
+                        if (rangePowerup != null) {
+                            gc.drawImage(rangePowerup, cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        } else {
+                            gc.setFill(Color.PURPLE);
+                            gc.fillOval(cellX + 6, cellY + 6, CELL_SIZE - 12, CELL_SIZE - 12);
+                        }
+                        break;
+                    case 4: // Bomb speed powerup
+                        if (bombSpeedPowerup != null) {
+                            gc.drawImage(bombSpeedPowerup, cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        } else {
+                            gc.setFill(Color.CYAN);
+                            gc.fillOval(cellX + 6, cellY + 6, CELL_SIZE - 12, CELL_SIZE - 12);
+                        }
+                        break;
+                    case 5: // Movement speed powerup
+                        if (moveSpeedPowerup != null) {
+                            gc.drawImage(moveSpeedPowerup, cellX, cellY, CELL_SIZE, CELL_SIZE);
+                        } else {
+                            gc.setFill(Color.YELLOW);
+                            gc.fillOval(cellX + 6, cellY + 6, CELL_SIZE - 12, CELL_SIZE - 12);
+                        }
+                        break;
+                }
             }
         }
 
-        // Draw explosions
-        for (Explosion explosion : explosions) {
-            gc.setFill(Color.ORANGE);
-
-            double scale = explosion.getScale(); // Get current scale (1.0 to 0.0)
-            int baseSize = CELL_SIZE - 4;
-            int scaledSize = (int)(baseSize * scale);
-            int offset = (baseSize - scaledSize) / 2; // Center the shrinking square
-
-            int explX = explosion.x * CELL_SIZE + 2 + offset;
-            int explY = explosion.y * CELL_SIZE + 2 + offset;
-
-            gc.fillRect(explX, explY, scaledSize, scaledSize);
-        }
-
-        // Draw bombs
+        // Then draw bombs with animation
         for (Bomb bomb : bombs) {
-            gc.setFill(Color.BLACK);
-            int bombX = bomb.x * CELL_SIZE + 5;
-            int bombY = bomb.y * CELL_SIZE + 5;
-            gc.fillOval(bombX, bombY, CELL_SIZE - 10, CELL_SIZE - 10);
+            int bombX = bomb.x * CELL_SIZE;
+            int bombY = bomb.y * CELL_SIZE;
 
-            // Draw fuse
-            gc.setFill(Color.RED);
-            gc.fillOval(bombX + 8, bombY - 3, 4, 4);
+            if (bombFrames != null && bombFrames.length > 0) {
+                // Calculate animation frame based on bomb timer
+                // Assuming bomb has a timer field that counts down from maxTimer to 0
+                int frameIndex2;
+                if (bomb.timer > 49) {
+                    frameIndex2 = 1;
+                }
+                    else if (bomb.timer > 39) {
+                    frameIndex2 = 2;
+                }
+                else if (bomb.timer > 29) {
+                    frameIndex2 = 3;
+                }
+                else if (bomb.timer > 19) {
+                    frameIndex2 = 4;
+                }
+                else if (bomb.timer > 9) {
+                    frameIndex2 = 5;
+                }
+                else {
+                    frameIndex2 = 6;
+                }
+                gc.drawImage(bombFrames[frameIndex2], bombX, bombY, CELL_SIZE, CELL_SIZE);
+            } else {
+                // Fallback to colored circle
+                gc.setFill(Color.BLACK);
+                gc.fillOval(bombX + 5, bombY + 5, CELL_SIZE - 10, CELL_SIZE - 10);
+            }
         }
 
-        // Draw players
+        // Then draw explosions
+        for (Explosion explosion : explosions) {
+            int explX = explosion.x * CELL_SIZE;
+            int explY = explosion.y * CELL_SIZE;
+
+            if (explosionFrames != null && explosionFrames.length > 0) {
+                int frameIndex = (int)((1 - (explosion.timer / (double)explosion.maxTimer)) * explosionFrames.length);
+                frameIndex = Math.min(frameIndex, explosionFrames.length - 1);
+                gc.drawImage(explosionFrames[frameIndex], explX, explY, CELL_SIZE, CELL_SIZE);
+            } else {
+                gc.setFill(Color.ORANGE);
+                gc.fillRect(explX + 2, explY + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+            }
+        }
+
+        // Then draw players
         for (Player player : players) {
             if (player.alive) {
-                gc.setFill(player.color);
-                // Use renderX and renderY for smooth positioning
-                int playerX = (int)(player.renderX * CELL_SIZE) + 3;
-                int playerY = (int)(player.renderY * CELL_SIZE) + 3;
-                gc.fillOval(playerX, playerY, CELL_SIZE - 6, CELL_SIZE - 6);
+                int playerX = (int)(player.renderX * CELL_SIZE);
+                int playerY = (int)(player.renderY * CELL_SIZE);
 
-                // Draw player number
-                gc.setFill(Color.WHITE);
-                gc.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-                gc.fillText(String.valueOf(player.id), playerX + 8, playerY + 16);
+                if (playerSprites != null && playerSprites.length > player.id - 1 && playerSprites[player.id - 1] != null) {
+                    gc.drawImage(playerSprites[player.id - 1], playerX, playerY, CELL_SIZE, CELL_SIZE);
+                } else {
+                    gc.setFill(player.color);
+                    gc.fillOval(playerX + 3, playerY + 3, CELL_SIZE - 6, CELL_SIZE - 6);
+                }
+            }
+        }
+
+        // Draw flags in CTF mode
+        if (isCaptureTheFlagMode) {
+            for (Flag flag : flags) {
+                if (!flag.captured && flagSprites != null && flagSprites.length > flag.ownerId - 1 &&
+                        flagSprites[flag.ownerId - 1] != null) {
+                    int flagX = flag.x * CELL_SIZE;
+                    int flagY = flag.y * CELL_SIZE;
+                    gc.drawImage(flagSprites[flag.ownerId - 1], flagX, flagY, CELL_SIZE, CELL_SIZE);
+                }
             }
         }
 
@@ -2262,31 +2492,6 @@ public class MenuPrincipal extends Application {
                 gc.fillText("MATCH NUL !", CANVAS_WIDTH/2 - 80, CANVAS_HEIGHT/2);
             }
         }
-
-        if (isCaptureTheFlagMode) {
-            for (Flag flag : flags) {
-                if (!flag.captured) {
-                    // Draw flag base
-                    gc.setFill(Color.DARKGRAY);
-                    int flagX = flag.x * CELL_SIZE;
-                    int flagY = flag.y * CELL_SIZE;
-                    gc.fillRect(flagX + 10, flagY + 5, 4, CELL_SIZE - 10); // Flag pole
-
-                    // Draw flag
-                    gc.setFill(flag.color);
-                    gc.fillRect(flagX + 14, flagY + 5, 12, 8); // Flag
-
-                    // Draw flag outline
-                    gc.setStroke(Color.BLACK);
-                    gc.strokeRect(flagX + 14, flagY + 5, 12, 8);
-
-                    // Draw player ID on flag
-                    gc.setFill(Color.WHITE);
-                    gc.setFont(Font.font("Arial", FontWeight.BOLD, 10));
-                    gc.fillText(String.valueOf(flag.ownerId), flagX + 17, flagY + 12);
-                }
-            }
-        }
     }
 
     private static class Player {
@@ -2303,6 +2508,10 @@ public class MenuPrincipal extends Application {
         int movementSpeedPowerUps; // New field for movement speed
         boolean isMoving;
         private static final double BASE_MOVE_SPEED = 0.35; // Base movement interpolation speed
+        private static int currentFrame = 0;
+        private static long lastFrameTime = 0;
+        private static boolean moving = false;
+        private int direction = 0; // 0=up, 1=right, 2=down, 3=left
 
         public Player(int id, int x, int y, Color color, KeyCode[] keys) {
             this.id = id;
@@ -2345,6 +2554,9 @@ public class MenuPrincipal extends Application {
                     renderX += dx * moveSpeed;
                     renderY += dy * moveSpeed;
                 }
+                Player.updateAnimation();
+            } else {
+                Player.setMoving(false);
             }
         }
 
@@ -2368,6 +2580,33 @@ public class MenuPrincipal extends Application {
         public double getMovementSpeed() {
             // Base speed is 0.35, increased by 0.15 per movement speed power-up (max 0.8)
             return Math.min(0.8, BASE_MOVE_SPEED + (movementSpeedPowerUps * 0.15));
+        }
+
+        public void setDirection(int dx, int dy) {
+            if (dx > 0) direction = 1; // right
+            else if (dx < 0) direction = 3; // left
+            else if (dy > 0) direction = 2; // down
+            else if (dy < 0) direction = 0; // up
+        }
+
+        public static void updateAnimation() {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastFrameTime > 100) { // 100ms per frame
+                lastFrameTime = currentTime;
+                if (moving) {
+                    currentFrame = (currentFrame + 1) % 4; // Assuming 4-frame walk cycle
+                } else {
+                    currentFrame = 0; // Idle frame
+                }
+            }
+        }
+
+        // Call this from your movement code
+        public static void setMoving(boolean moving) {
+            Player.moving = moving;
+            if (!moving) {
+                currentFrame = 0; // Reset to idle when not moving
+            }
         }
     }
 
@@ -2417,3 +2656,4 @@ public class MenuPrincipal extends Application {
         launch(args);
     }
 }
+
