@@ -7,12 +7,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
@@ -25,12 +25,9 @@ public class ProfileController implements Initializable {
     @FXML private ImageView avatarImage;
     @FXML private Label gamesPlayedLabel;
     @FXML private Label winsLabel;
-    @FXML private Label bestScoreLabel;
     @FXML private Label playTimeLabel;
-    @FXML private HBox achievementsContainer;
 
     private Stage primaryStage;
-    //private PlayerModel playerModel;
 
     /**
      * Initialise le contrôleur et charge les données du profil.
@@ -43,7 +40,7 @@ public class ProfileController implements Initializable {
         loadProfileData();
 
         // Charger l'avatar par défaut
-        avatarImage.setImage(new Image(getClass().getResourceAsStream("/assets/default_avatar.jpg")));
+        avatarImage.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/default_avatar.jpg"))));
     }
 
     /**
@@ -62,7 +59,6 @@ public class ProfileController implements Initializable {
         usernameField.setText("Joueur1");
         gamesPlayedLabel.setText("42");
         winsLabel.setText("23");
-        bestScoreLabel.setText("1250");
         playTimeLabel.setText("12h 34m");
 
         // Charger les récompenses
@@ -77,12 +73,6 @@ public class ProfileController implements Initializable {
         String[] achievements = {
                 "Débutant", "Bombardier", "Survivant", "Champion"
         };
-
-        for (String achievement : achievements) {
-            Label achievementLabel = new Label(achievement);
-            achievementLabel.setStyle("-fx-text-fill: white; -fx-background-color: #444444; -fx-padding: 5;");
-            achievementsContainer.getChildren().add(achievementLabel);
-        }
     }
 
     /**

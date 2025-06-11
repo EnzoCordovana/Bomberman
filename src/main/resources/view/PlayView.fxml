@@ -2,56 +2,69 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171"
+<VBox xmlns="http://javafx.com/javafx/11.0.1"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="fr.amu.iut.bomberman.controller.PlayController"
       spacing="10" style="-fx-background-color: #222222;">
 
-    <!-- Barre de menu supérieure -->
+    <!-- Barre de titre -->
     <HBox style="-fx-background-color: #333333; -fx-padding: 10;">
-        <Label text="Bomberman" style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;"/>
+        <Label text="Bomberman MVP" style="-fx-text-fill: white; -fx-font-size: 24; -fx-font-weight: bold;"/>
         <Separator HBox.hgrow="ALWAYS"/>
         <Button text="Pause" style="-fx-text-fill: white; -fx-background-color: #444444;" onAction="#handlePause"/>
-        <Button text="Quitter" style="-fx-text-fill: white; -fx-background-color: #444444;" onAction="#handleQuit"/>
+        <Button text="Quitter" style="-fx-text-fill: white; -fx-background-color: #c0392b;" onAction="#handleQuit"/>
     </HBox>
 
     <!-- Zone de jeu principale -->
     <BorderPane>
         <!-- Zone d'affichage du jeu -->
         <center>
-            <AnchorPane fx:id="gameArea" style="-fx-background-color: black;">
-                <!-- Le contenu du jeu sera ajouté dynamiquement ici -->
+            <AnchorPane fx:id="gameArea" style="-fx-background-color: black;"
+                        prefWidth="800" prefHeight="600">
+                <!-- Le jeu sera ajouté ici dynamiquement -->
             </AnchorPane>
         </center>
 
-        <!-- Barre d'informations latérale -->
+        <!-- Panneau d'informations -->
         <right>
-            <VBox spacing="10" style="-fx-background-color: #333333; -fx-padding: 10;">
-                <Label text="Joueurs" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            <VBox spacing="10" style="-fx-background-color: #333333; -fx-padding: 15; -fx-pref-width: 200;">
+                <Label text="Contrôles MVP" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16;"/>
 
-                <!-- Liste des joueurs -->
-                <VBox fx:id="playersList" spacing="5">
-                    <!-- Les informations des joueurs seront ajoutées dynamiquement -->
+                <Separator style="-fx-background-color: #555555;"/>
+
+                <VBox spacing="8">
+                    <Label text="🔴 Joueur 1 (Rouge)" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
+                    <Label text="↑ Z  ↓ S" style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                    <Label text="← Q  → D" style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                    <Label text="💣 Espace" style="-fx-text-fill: white; -fx-font-size: 12;"/>
                 </VBox>
 
                 <Separator style="-fx-background-color: #555555;"/>
 
-                <Label text="Contrôles" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
-                <Label text="Déplacement: Flèches" style="-fx-text-fill: white;"/>
-                <Label text="Poser bombe: Espace" style="-fx-text-fill: white;"/>
+                <VBox spacing="8">
+                    <Label text="🔵 Joueur 2 (Bleu)" style="-fx-text-fill: #3498db; -fx-font-weight: bold;"/>
+                    <Label text="Flèches directionnelles" style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                    <Label text="💣 Entrée" style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                </VBox>
+
+                <Separator style="-fx-background-color: #555555;"/>
+
+                <VBox spacing="5">
+                    <Label text="📋 Règles" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Label text="• Détruisez les blocs marron" style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                    <Label text="• Évitez les explosions" style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                    <Label text="• Bombes explosent en 3s" style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                    <Label text="• Portée: 2 cases" style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                </VBox>
+
+                <Separator style="-fx-background-color: #555555;"/>
+
+                <VBox spacing="5">
+                    <Label text="🎯 Objectif" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Label text="Survivez et éliminez l'adversaire!" style="-fx-text-fill: #f39c12; -fx-font-size: 11;"/>
+                </VBox>
             </VBox>
         </right>
-
-        <!-- Barre d'état inférieure -->
-        <bottom>
-            <HBox spacing="20" style="-fx-background-color: #333333; -fx-padding: 10;">
-                <Label fx:id="timeLabel" text="Temps: 00:00" style="-fx-text-fill: white;"/>
-                <Label fx:id="scoreLabel" text="Score: 0" style="-fx-text-fill: white;"/>
-                <Label fx:id="livesLabel" text="Vies: 3" style="-fx-text-fill: white;"/>
-            </HBox>
-        </bottom>
     </BorderPane>
 </VBox>
