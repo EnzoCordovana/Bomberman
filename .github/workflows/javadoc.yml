@@ -4,9 +4,11 @@ on:                                           # Quand on doit l'executer
   push:
     branches:
       - main
+      - clean
   pull_request:
     branches:
       - main
+      - clean
 
 permissions:                                  # Donne le droit d'écriture
   contents: write
