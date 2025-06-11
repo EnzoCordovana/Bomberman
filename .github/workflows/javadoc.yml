@@ -1,6 +1,6 @@
 name: Generate Javadoc website
 
-on:                                           # Quand on doit l'executer
+on:
   push:
     branches:
       - main
@@ -10,7 +10,7 @@ on:                                           # Quand on doit l'executer
       - main
       - clean
 
-permissions:                                  # Donne le droit d'écriture
+permissions:
   contents: write
 
 jobs:
@@ -27,11 +27,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install JavaFX
+      - name: Download JavaFX SDK jars
         run: |
-          wget https://download2.gluonhq.com/openjfx/17.0.10/openjfx-17.0.10_linux-x64_bin-sdk.zip
-          unzip openjfx-17.0.10_linux-x64_bin-sdk.zip
-          mv javafx-sdk-17.0.10 javafx
+          mkdir lib
+          curl -L -o lib/javafx-base.jar https://repo1.maven.org/maven2/org/openjfx/javafx-base/17.0.10/javafx-base-17.0.10-linux.jar
+          curl -L -o lib/javafx-controls.jar https://repo1.maven.org/maven2/org/openjfx/javafx-controls/17.0.10/javafx-controls-17.0.10-linux.jar
+          curl -L -o lib/javafx-graphics.jar https://repo1.maven.org/maven2/org/openjfx/javafx-graphics/17.0.10/javafx-graphics-17.0.10-linux.jar
+          curl -L -o lib/javafx-fxml.jar https://repo1.maven.org/maven2/org/openjfx/javafx-fxml/17.0.10/javafx-fxml-17.0.10-linux.jar
+          curl -L -o lib/javafx-media.jar https://repo1.maven.org/maven2/org/openjfx/javafx-media/17.0.10/javafx-media-17.0.10-linux.jar
 
       - name: Create docs folder
         run: mkdir -p docs
@@ -40,7 +43,7 @@ jobs:
         run: |
           javadoc \
             -d docs \
-            --module-path javafx/lib \
+            --module-path lib \
             --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media \
             -sourcepath src/main/java \
             -subpackages fr.amu.iut.bomberman
