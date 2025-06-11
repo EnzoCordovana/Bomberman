@@ -1,0 +1,8 @@
+module:MVP
+fr.amu.iut.bomberman
+fr.amu.iut.bomberman.controller
+fr.amu.iut.bomberman.model.common
+fr.amu.iut.bomberman.model.entities
+fr.amu.iut.bomberman.model.game
+fr.amu.iut.bomberman.model.map
+fr.amu.iut.bomberman.view
