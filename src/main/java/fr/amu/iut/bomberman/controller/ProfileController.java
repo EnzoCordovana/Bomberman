@@ -16,21 +16,34 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
- * Contrôleur pour la vue du profil utilisateur (ProfileView).
- * Gère l'affichage et la modification des informations du profil du joueur.
+ * Contrôleur pour la vue de gestion du profil utilisateur.
+ * Permet l'affichage et la modification des informations personnelles,
+ * des statistiques de jeu et des récompenses du joueur.
  */
 public class ProfileController implements Initializable {
 
+    /** Champ de saisie du nom d'utilisateur */
     @FXML private TextField usernameField;
+
+    /** Image d'avatar du joueur */
     @FXML private ImageView avatarImage;
+
+    /** Label affichant le nombre de parties jouées */
     @FXML private Label gamesPlayedLabel;
+
+    /** Label affichant le nombre de victoires */
     @FXML private Label winsLabel;
+
+    /** Label affichant le temps de jeu total */
     @FXML private Label playTimeLabel;
 
+    /** Référence à la fenêtre principale pour la navigation */
     private Stage primaryStage;
 
     /**
      * Initialise le contrôleur et charge les données du profil.
+     * Configure l'interface utilisateur avec les informations existantes.
+     *
      * @param location L'emplacement utilisé pour résoudre les chemins relatifs
      * @param resources Les ressources utilisées pour localiser l'objet racine
      */
@@ -45,6 +58,7 @@ public class ProfileController implements Initializable {
 
     /**
      * Définit la scène principale pour la navigation.
+     *
      * @param stage La scène principale de l'application
      */
     public void setPrimaryStage(Stage stage) {
@@ -52,7 +66,8 @@ public class ProfileController implements Initializable {
     }
 
     /**
-     * Charge les données du profil depuis le modèle.
+     * Charge les données du profil depuis le modèle de données.
+     * Met à jour l'interface avec les statistiques actuelles.
      */
     private void loadProfileData() {
         // Exemple de chargement de données - à adapter avec votre modèle
@@ -66,7 +81,8 @@ public class ProfileController implements Initializable {
     }
 
     /**
-     * Charge et affiche les récompenses du joueur.
+     * Charge et affiche les récompenses obtenues par le joueur.
+     * Parcourt la liste des achievements et les affiche.
      */
     private void loadAchievements() {
         // Exemple de chargement de récompenses
@@ -76,7 +92,8 @@ public class ProfileController implements Initializable {
     }
 
     /**
-     * Gère l'action du bouton "Changer d'avatar".
+     * Gestionnaire d'événement pour le bouton "Changer d'avatar".
+     * Ouvre un sélecteur de fichier pour choisir une nouvelle image.
      */
     @FXML
     private void handleChangeAvatar() {
@@ -93,8 +110,8 @@ public class ProfileController implements Initializable {
     }
 
     /**
-     * Gère l'action du bouton "Enregistrer".
-     * Sauvegarde les modifications du profil.
+     * Gestionnaire d'événement pour le bouton "Enregistrer".
+     * Sauvegarde les modifications du profil et retourne au menu.
      */
     @FXML
     private void handleSave() {
@@ -107,8 +124,8 @@ public class ProfileController implements Initializable {
     }
 
     /**
-     * Gère l'action du bouton "Retour".
-     * Retourne au menu principal sans sauvegarder.
+     * Gestionnaire d'événement pour le bouton "Retour".
+     * Retourne au menu principal sans sauvegarder les modifications.
      */
     @FXML
     private void handleBack() {

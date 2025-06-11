@@ -10,13 +10,24 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 /**
- * Main corrigé pour Bomberman MVP
+ * Classe principale de l'application Bomberman MVP.
+ * Gère le démarrage de l'application JavaFX et la navigation entre les vues.
  */
 public class Main extends Application {
 
+    /** Stage principal de l'application */
     private static Stage primaryStage;
+
+    /** Scène principale partagée pour toutes les vues */
     private static Scene scene;
 
+    /**
+     * Point d'entrée de l'application JavaFX.
+     * Initialise la fenêtre principale et charge la vue du menu.
+     *
+     * @param stage Le stage principal fourni par JavaFX
+     * @throws Exception Si une erreur survient lors du chargement de la vue
+     */
     @Override
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
@@ -57,13 +68,22 @@ public class Main extends Application {
         System.out.println("====================");
     }
 
+    /**
+     * Point d'entrée principal du programme.
+     * Lance l'application JavaFX.
+     *
+     * @param args Arguments de la ligne de commande
+     */
     public static void main(String[] args) {
         System.out.println("Lancement Bomberman MVP...");
         launch(args);
     }
 
     /**
-     * Méthode pour changer de vue dynamiquement
+     * Change dynamiquement la vue affichée dans l'application.
+     * Configure automatiquement le contrôleur selon le type de vue chargée.
+     *
+     * @param fxmlFile Nom du fichier FXML à charger (ex: "MenuView.fxml")
      */
     public static void changeView(String fxmlFile) {
         try {
@@ -88,10 +108,20 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Retourne le stage principal de l'application.
+     *
+     * @return Le stage principal
+     */
     public static Stage getPrimaryStage() {
         return primaryStage;
     }
 
+    /**
+     * Retourne la scène principale de l'application.
+     *
+     * @return La scène principale
+     */
     public static Scene getScene() {
         return scene;
     }

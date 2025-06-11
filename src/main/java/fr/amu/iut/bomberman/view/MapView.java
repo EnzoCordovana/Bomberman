@@ -12,17 +12,36 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 /**
- * MapView corrigé pour ressembler à l'image Bomberman
+ * Composant graphique responsable du rendu visuel de la carte de jeu Bomberman.
+ * Hérite de Canvas pour un affichage optimisé et personnalisé.
+ * Gère l'affichage des tuiles, joueurs, bombes et explosions en temps réel.
  */
 public class MapView extends Canvas {
+
+    /** Taille d'une tuile en pixels */
     private static final int TILE_SIZE = 32;
+
+    /** Taille d'affichage d'un joueur en pixels */
     private static final int PLAYER_SIZE = 24;
+
+    /** Taille d'affichage d'une bombe en pixels */
     private static final int BOMB_SIZE = 20;
 
+    /** Référence au moteur de jeu pour accéder aux données */
     private final GameEngine gameEngine;
+
+    /** Référence à la carte de jeu */
     private final GameMap gameMap;
+
+    /** Contexte graphique pour le dessin */
     private final GraphicsContext gc;
 
+    /**
+     * Constructeur de la vue de carte.
+     * Initialise le canvas avec les dimensions appropriées et configure le contexte graphique.
+     *
+     * @param gameEngine Le moteur de jeu contenant les données à afficher
+     */
     public MapView(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
         this.gameMap = gameEngine.getGameMap();
@@ -34,6 +53,11 @@ public class MapView extends Canvas {
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 12));
     }
 
+    /**
+     * Met à jour l'affichage complet de la carte.
+     * Redessine tous les éléments : carte, bombes, joueurs.
+     * Appelée à chaque frame pour un rendu en temps réel.
+     */
     public void update() {
         gc.clearRect(0, 0, getWidth(), getHeight());
 
@@ -42,6 +66,10 @@ public class MapView extends Canvas {
         drawPlayers();
     }
 
+    /**
+     * Dessine toutes les tuiles de la carte de jeu.
+     * Parcourt la grille et affiche chaque tuile selon son type.
+     */
     private void drawMap() {
         for (int y = 0; y < gameMap.getHeight(); y++) {
             for (int x = 0; x < gameMap.getWidth(); x++) {
@@ -53,6 +81,14 @@ public class MapView extends Canvas {
         }
     }
 
+    /**
+     * Dessine une tuile spécifique à une position donnée.
+     * Applique le style visuel approprié selon le type de tuile.
+     *
+     * @param x Position X de la tuile sur la grille
+     * @param y Position Y de la tuile sur la grille
+     * @param type Type de la tuile à dessiner
+     */
     private void drawTile(int x, int y, Tile.TileType type) {
         double pixelX = x * TILE_SIZE;
         double pixelY = y * TILE_SIZE;
@@ -112,6 +148,10 @@ public class MapView extends Canvas {
         gc.strokeRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE);
     }
 
+    /**
+     * Dessine toutes les bombes présentes sur la carte.
+     * Inclut les animations de clignotement avant explosion.
+     */
     private void drawBombs() {
         for (Bomb bomb : gameEngine.getBombs()) {
             double pixelX = bomb.getX() * TILE_SIZE;
@@ -149,6 +189,10 @@ public class MapView extends Canvas {
         }
     }
 
+    /**
+     * Dessine tous les joueurs vivants sur la carte.
+     * Affiche leur position, couleur et indicateurs de santé.
+     */
     private void drawPlayers() {
         for (Player player : gameEngine.getPlayers()) {
             if (player.isAlive()) {
@@ -157,6 +201,11 @@ public class MapView extends Canvas {
         }
     }
 
+    /**
+     * Dessine un joueur spécifique avec ses caractéristiques visuelles.
+     *
+     * @param player Le joueur à dessiner
+     */
     private void drawPlayer(Player player) {
         double pixelX = player.getX() - PLAYER_SIZE / 2.0;
         double pixelY = player.getY() - PLAYER_SIZE / 2.0;
@@ -198,6 +247,13 @@ public class MapView extends Canvas {
         }
     }
 
+    /**
+     * Dessine l'indicateur de santé d'un joueur blessé.
+     *
+     * @param player Le joueur concerné
+     * @param x Position X d'affichage
+     * @param y Position Y d'affichage
+     */
     private void drawHealthIndicator(Player player, double x, double y) {
         double barWidth = PLAYER_SIZE;
         double barHeight = 3;
@@ -217,10 +273,20 @@ public class MapView extends Canvas {
         gc.strokeRect(x, y, barWidth, barHeight);
     }
 
+    /**
+     * Retourne la largeur totale de la vue en pixels.
+     *
+     * @return Largeur de la vue
+     */
     public double getViewWidth() {
         return gameMap.getWidth() * TILE_SIZE;
     }
 
+    /**
+     * Retourne la hauteur totale de la vue en pixels.
+     *
+     * @return Hauteur de la vue
+     */
     public double getViewHeight() {
         return gameMap.getHeight() * TILE_SIZE;
     }

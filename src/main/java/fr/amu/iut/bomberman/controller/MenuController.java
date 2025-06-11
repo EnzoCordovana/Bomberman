@@ -13,27 +13,40 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
- * Contrôleur pour la vue du menu principal - MVC Controller
+ * Contrôleur pour la vue du menu principal de l'application Bomberman.
+ * Gère les interactions utilisateur et la navigation vers les autres vues.
+ * Implémente le pattern MVC en tant que Controller.
  */
 public class MenuController implements Initializable {
 
+    /** Conteneur principal de la vue du menu */
     @FXML
     public BorderPane container;
 
     /** Référence à la fenêtre principale de l'application */
     private Stage primaryStage;
 
+    /** Bouton de sortie de l'application */
     @FXML
     private Button quitButton;
 
     /**
      * Définit la référence à la fenêtre principale.
+     * Nécessaire pour la navigation et la fermeture de l'application.
+     *
      * @param primaryStage La fenêtre principale de l'application
      */
     public void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
     }
 
+    /**
+     * Initialise le contrôleur après le chargement du FXML.
+     * Configure l'interface utilisateur et charge les ressources.
+     *
+     * @param location L'emplacement utilisé pour résoudre les chemins relatifs
+     * @param resources Les ressources utilisées pour localiser l'objet racine
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Charger l'image de fond si disponible
@@ -57,7 +70,8 @@ public class MenuController implements Initializable {
     }
 
     /**
-     * Méthode appelée lorsque le bouton "Jouer" est cliqué.
+     * Gestionnaire d'événement pour le bouton "Jouer".
+     * Lance une nouvelle partie en naviguant vers la vue de jeu.
      */
     @FXML
     private void handlePlayButton() {
@@ -66,7 +80,8 @@ public class MenuController implements Initializable {
     }
 
     /**
-     * Méthode appelée lorsque le bouton "Paramètres" est cliqué.
+     * Gestionnaire d'événement pour le bouton "Paramètres".
+     * Ouvre le menu de configuration de l'application.
      */
     @FXML
     private void handleSettingsButton() {
@@ -75,7 +90,8 @@ public class MenuController implements Initializable {
     }
 
     /**
-     * Méthode appelée lorsque le bouton "Profile" est cliqué.
+     * Gestionnaire d'événement pour le bouton "Profil".
+     * Ouvre la gestion du profil utilisateur.
      */
     @FXML
     private void handleProfileButton() {
@@ -84,7 +100,8 @@ public class MenuController implements Initializable {
     }
 
     /**
-     * Méthode appelée lorsque le bouton "Quitter" est cliqué.
+     * Gestionnaire d'événement pour le bouton "Quitter".
+     * Ferme proprement l'application.
      */
     @FXML
     private void handleQuitButton() {
@@ -96,7 +113,10 @@ public class MenuController implements Initializable {
         }
     }
 
-    // Méthodes alternatives pour compatibilité
+    /**
+     * Méthode alternative pour démarrer le jeu.
+     * Fournie pour compatibilité avec différentes liaisons FXML.
+     */
     @FXML
     private void startGame() {
         handlePlayButton();

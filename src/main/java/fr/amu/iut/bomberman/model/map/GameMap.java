@@ -7,20 +7,41 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * GameMap corrigé pour MVP Bomberman
+ * Représente la carte de jeu du Bomberman avec sa logique de gestion.
+ * Implémente l'interface IMap et gère la génération procédurale du terrain.
+ * Responsable de la gestion des explosions, des collisions et de l'état de la carte.
  */
 public class GameMap implements IMap {
+
+    /** Grille bidimensionnelle représentant la carte */
     private Tile[][] tiles;
+
+    /** Largeur de la carte en nombre de tuiles */
     private int width;
+
+    /** Hauteur de la carte en nombre de tuiles */
     private int height;
+
+    /** Liste des positions des murs destructibles pour optimisation */
     private final List<Position> destructibleWalls = new ArrayList<>();
 
+    /**
+     * Constructeur de la carte de jeu.
+     * Initialise une nouvelle carte avec les dimensions spécifiées.
+     *
+     * @param width Largeur de la carte en tuiles
+     * @param height Hauteur de la carte en tuiles
+     */
     public GameMap(int width, int height) {
         this.width = width;
         this.height = height;
         initialize(width, height);
     }
 
+    /**
+     * {@inheritDoc}
+     * Initialise la structure de la carte avec génération procédurale.
+     */
     @Override
     public void initialize(int width, int height) {
         this.width = width;
@@ -29,6 +50,10 @@ public class GameMap implements IMap {
         initializeMap();
     }
 
+    /**
+     * Génère le contenu de la carte selon les règles du Bomberman.
+     * Place les murs fixes, les zones de départ et les murs destructibles aléatoires.
+     */
     private void initializeMap() {
         destructibleWalls.clear();
         Random random = new Random();
@@ -62,10 +87,24 @@ public class GameMap implements IMap {
         }
     }
 
+    /**
+     * Vérifie si une position correspond à un bord de la carte.
+     *
+     * @param x Coordonnée X à vérifier
+     * @param y Coordonnée Y à vérifier
+     * @return true si la position est sur un bord
+     */
     private boolean isBorder(int x, int y) {
         return x == 0 || x == width - 1 || y == 0 || y == height - 1;
     }
 
+    /**
+     * Vérifie si une position fait partie d'une zone de départ de joueur.
+     * Les zones de départ sont toujours libres de murs destructibles.
+     *
+     * @param position Position à vérifier
+     * @return true si la position est une zone de départ
+     */
     private boolean isStartingArea(Position position) {
         int x = position.getX();
         int y = position.getY();
@@ -90,11 +129,17 @@ public class GameMap implements IMap {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Tile getTile(Position position) {
         return getTile(position.getX(), position.getY());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Tile getTile(int x, int y) {
         if (isValidPosition(x, y)) {
@@ -103,11 +148,17 @@ public class GameMap implements IMap {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setTile(Position position, Tile tile) {
         setTile(position.getX(), position.getY(), tile);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setTile(int x, int y, Tile tile) {
         if (isValidPosition(x, y)) {
@@ -115,16 +166,26 @@ public class GameMap implements IMap {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getWidth() {
         return width;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getHeight() {
         return height;
     }
 
+    /**
+     * {@inheritDoc}
+     * Vérifie que la position est libre pour placer une bombe.
+     */
     @Override
     public boolean placeBomb(Position position) {
         Tile tile = getTile(position);
@@ -135,6 +196,10 @@ public class GameMap implements IMap {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * Déclenche une explosion en croix avec une portée configurable.
+     */
     @Override
     public void explodeBomb(Position position) {
         // Explosion au centre
@@ -151,6 +216,14 @@ public class GameMap implements IMap {
         explodeDirection(position, 0, -1, explosionRange); // Haut
     }
 
+    /**
+     * Propage l'explosion dans une direction donnée jusqu'à rencontrer un obstacle.
+     *
+     * @param start Position de départ de l'explosion
+     * @param dx Direction X (-1, 0, ou 1)
+     * @param dy Direction Y (-1, 0, ou 1)
+     * @param range Portée maximale de l'explosion
+     */
     private void explodeDirection(Position start, int dx, int dy, int range) {
         for (int i = 1; i <= range; i++) {
             int x = start.getX() + (dx * i);
@@ -173,6 +246,10 @@ public class GameMap implements IMap {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Met à jour les timers d'explosion et nettoie les explosions terminées.
+     */
     @Override
     public void updateExplosions() {
         for (int y = 0; y < height; y++) {
@@ -188,13 +265,19 @@ public class GameMap implements IMap {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Remet la carte dans son état initial pour une nouvelle partie.
+     */
     @Override
     public void reset() {
         destructibleWalls.clear();
         initializeMap();
     }
 
-    // Méthodes de vérification héritées de IMap
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isValidPosition(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;

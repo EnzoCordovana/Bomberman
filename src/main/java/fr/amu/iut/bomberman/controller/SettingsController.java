@@ -10,11 +10,19 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Contrôleur pour la vue des paramètres (SettingsView). * Gère la configuration des paramètres de jeu, des contrôles et de l'audio. */
+ * Contrôleur pour la vue des paramètres de l'application.
+ * Gère la configuration des options de jeu, des contrôles personnalisés
+ * et des paramètres audio/vidéo de l'application Bomberman.
+ */
 public class SettingsController implements Initializable {
 
+    /** Sélecteur de difficulté du jeu */
     @FXML private ComboBox<String> difficultyCombo;
+
+    /** Case à cocher pour activer/désactiver les power-ups */
     @FXML private CheckBox powerupsCheckbox;
+
+    /** Case à cocher pour activer/désactiver les obstacles */
     @FXML private CheckBox obstaclesCheckbox;
 
     // Contrôles Joueur 1
@@ -45,28 +53,35 @@ public class SettingsController implements Initializable {
     @FXML private TextField moveRightField4;
     @FXML private TextField placeBombField4;
 
-
+    /** Référence à la fenêtre principale */
     private Stage primaryStage;
-    //private GameSettings gameSettings;
 
     /**
-     * Initialise le contrôleur et configure les éléments de l'interface.     * @param location L'emplacement utilisé pour résoudre les chemins relatifs
+     * Initialise le contrôleur et configure les éléments de l'interface.
+     * Charge les paramètres actuels et configure les composants.
+     *
+     * @param location L'emplacement utilisé pour résoudre les chemins relatifs
      * @param resources Les ressources utilisées pour localiser l'objet racine
-     */    @Override
+     */
+    @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Charger les paramètres actuels
         loadSettings();
     }
 
     /**
-     * Définit la scène principale pour la navigation.     * @param stage La scène principale de l'application
+     * Définit la scène principale pour la navigation.
+     *
+     * @param stage La scène principale de l'application
      */
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
     }
 
     /**
-     * Charge les paramètres actuels depuis le modèle.     */
+     * Charge les paramètres actuels depuis le modèle de configuration.
+     * Met à jour l'interface avec les valeurs sauvegardées.
+     */
     private void loadSettings() {
 
         // Joueur 1 (ZQSD)
@@ -99,14 +114,18 @@ public class SettingsController implements Initializable {
     }
 
     /**
-     * Gère l'action du bouton "Réinitialiser" pour les contrôles.     */
+     * Gestionnaire d'événement pour le bouton "Réinitialiser".
+     * Remet tous les contrôles à leurs valeurs par défaut.
+     */
     @FXML
     private void resetControls() {
         loadSettings();
     }
 
     /**
-     * Gère l'action du bouton "Appliquer".     * Sauvegarde les nouveaux paramètres.     */
+     * Gestionnaire d'événement pour le bouton "Appliquer".
+     * Sauvegarde les nouveaux paramètres et retourne au menu.
+     */
     @FXML
     private void handleApply() {
         // Sauvegarder les paramètres
@@ -117,7 +136,9 @@ public class SettingsController implements Initializable {
     }
 
     /**
-     * Gère l'action du bouton "Annuler".     * Retourne au menu sans sauvegarder les modifications.     */
+     * Gestionnaire d'événement pour le bouton "Annuler".
+     * Retourne au menu sans sauvegarder les modifications.
+     */
     @FXML
     private void handleCancel() {
         ViewManager.getInstance(primaryStage).showMenuView();
