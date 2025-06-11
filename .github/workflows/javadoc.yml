@@ -1,41 +1,36 @@
-name: Generate Javadoc website
-
-on:                                           # Quand on doit l'executer
-  push:
-    branches:
-      - main
-      - clean
-  pull_request:
-    branches:
-      - main
-      - clean
-
-permissions:                                  # Donne le droit d'écriture
-  contents: write
-
 jobs:
   build:
-    runs-on: ubuntu-latest                    # S'execute sur un serveur ubuntu
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3             # Clone le repo pour avoir accée
+        uses: actions/checkout@v3
 
-      - name: Set up JDK                      # Installe Java
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17' # Mettre la version de son projet java
+          java-version: '17'
 
-      - name: Create folder                   # Créer un dossier qui comportera la doc
+      - name: Install JavaFX
         run: |
-          mkdir -p docs
+          wget https://download2.gluonhq.com/openjfx/17.0.10/openjfx-17.0.10_linux-x64_bin-sdk.zip
+          unzip openjfx-17.0.10_linux-x64_bin-sdk.zip
+          mv javafx-sdk-17.0.10 javafx
 
-      - name: Generate Javadoc                # Générer la doc
+      - name: Create docs folder
+        run: mkdir -p docs
+
+      - name: Generate Javadoc
         run: |
-          javadoc -d doc -sourcepath src/main/java -subpackages fr.amu.iut.bomberman
+          javadoc \
+            -d docs \
+            --module-path javafx/lib \
+            --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media \
+            -sourcepath src/main/java \
+            -subpackages fr.amu.iut.bomberman
 
-      - name: Deploy Javadoc to GitHub Pages  # Déploiment sur GitHub Pages
+      - name: Deploy Javadoc to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
