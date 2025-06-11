@@ -1,0 +1,40 @@
+name: Generate Javadoc website
+
+on:                                           # Quand on doit l'executer
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:                                  # Donne le droit d'écriture
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest                    # S'execute sur un serveur ubuntu
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3             # Clone le repo pour avoir accée
+
+      - name: Set up JDK                      # Installe Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17' # Mettre la version de son projet java
+
+      - name: Create folder                   # Créer un dossier qui comportera la doc
+        run: |
+          mkdir -p docs
+
+      - name: Generate Javadoc                # Générer la doc
+        run: |
+          javadoc -d doc -sourcepath src/main/java -subpackages fr.amu.iut.bomberman
+
+      - name: Deploy Javadoc to GitHub Pages  # Déploiment sur GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs/
