@@ -11,7 +11,7 @@ public class Bomb {
     private long explosionDelay; // En millisecondes
     private boolean exploded;
 
-    public static final long DEFAULT_EXPLOSION_DELAY = 3000; // 3 secondes
+    public static final long DEFAULT_EXPLOSION_DELAY = 1500; // 1.5 secondes
 
     public Bomb(int x, int y, int ownerId, int explosionRange) {
         this.x = x;
@@ -39,8 +39,8 @@ public class Bomb {
         long elapsed = currentTime - timeCreated;
         boolean shouldExplode = elapsed >= explosionDelay;
 
-        // DEBUG: Afficher l'état toutes les 500ms
-        if (elapsed % 500 < 50) { // Affiche environ toutes les 500ms
+        // DEBUG: Afficher l'état toutes les 1s
+        if (elapsed % 1000 < 50) { // Affiche environ toutes les 1s
             System.out.println("⏰ Bombe (" + x + "," + y + ") - Elapsed: " + elapsed + "ms / " + explosionDelay + "ms" +
                     " - ShouldExplode: " + shouldExplode + " - TimeRemaining: " + getTimeRemaining() + "ms");
         }

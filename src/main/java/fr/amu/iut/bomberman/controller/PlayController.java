@@ -69,7 +69,7 @@ public class PlayController implements Initializable {
     // NOUVEAU: Contrôles distincts pour chaque joueur
     private static final PlayerControls[] PLAYER_CONTROLS = {
             new PlayerControls(KeyCode.Z, KeyCode.S, KeyCode.Q, KeyCode.D, KeyCode.E),           // Joueur 1: ZQSD + E
-            new PlayerControls(KeyCode.O, KeyCode.L, KeyCode.K, KeyCode.L, KeyCode.P), // Joueur 2: OKLM + P
+            new PlayerControls(KeyCode.O, KeyCode.L, KeyCode.K, KeyCode.M, KeyCode.P), // Joueur 2: OKLM + P
             new PlayerControls(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.ENTER),              // Joueur 3: fleches + enter
             new PlayerControls(KeyCode.NUMPAD8, KeyCode.NUMPAD5, KeyCode.NUMPAD4, KeyCode.NUMPAD6, KeyCode.NUMPAD0) // Joueur 4: Pavé numérique
     };
@@ -88,11 +88,10 @@ public class PlayController implements Initializable {
      */
     private void displayControlsInfo() {
         System.out.println("🎮 === CONTRÔLES DU JEU ===");
-        System.out.println("👤 Joueur 1 (Rouge): Z Q S D + ESPACE");
-        System.out.println("👤 Joueur 2 (Bleu): FLÈCHES + ENTRÉE");
-        System.out.println("👤 Joueur 3 (Vert): I J K L + U");
+        System.out.println("👤 Joueur 1 (Rouge): Z Q S D + E");
+        System.out.println("👤 Joueur 2 (Bleu): OKLM + P");
+        System.out.println("👤 Joueur 3 (Vert): fleche + entrer");
         System.out.println("👤 Joueur 4 (Orange): PAVÉ NUM + 0");
-        System.out.println("⚠️  INVINCIBILITÉ DÉSACTIVÉE");
         System.out.println("===============================");
     }
 
@@ -117,6 +116,7 @@ public class PlayController implements Initializable {
             return t;
         });
 
+        // Processeurs logiques
         System.out.println("Threads initialisés - Processeurs: " + Runtime.getRuntime().availableProcessors());
     }
 
@@ -126,7 +126,7 @@ public class PlayController implements Initializable {
     private void initializeGameComponents() {
         gameMap = new GameMap(15, 13);
         gameEngine = new GameEngine(gameMap);
-        gameEngine.initializeGame(2);
+        gameEngine.initializeGame(3);
         mapView = new MapView(gameEngine);
 
         System.out.println("Composants de jeu initialisés");
