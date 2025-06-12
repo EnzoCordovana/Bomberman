@@ -49,6 +49,20 @@ public class GameEngine {
     };
 
     /**
+     * Interface pour les événements de jeu
+     */
+    public interface GameEventListener {
+        void onPlayerMoved(int playerId, Position newPosition);
+        void onBombPlaced(Position position, int playerId);
+        void onBombExploded(Position position);
+        void onPlayerDied(int playerId);
+        void onGameEnded(Player winner);
+        void onBlockDestroyed(Position position);
+    }
+
+    private GameEventListener eventListener;
+
+    /**
      * Constructeur du moteur de jeu.
      *
      * @param gameMap La carte sur laquelle se déroule le jeu
@@ -140,7 +154,12 @@ public class GameEngine {
                     System.out.println("✅ " + owner.getName() + " - bombe libérée, score: " + owner.getScore());
                 }
 
-                // 4. Marquer pour suppression
+                // 4. Notifier les listeners
+                if (eventListener != null) {
+                    eventListener.onBombExploded(bombPos);
+                }
+
+                // 5. Marquer pour suppression
                 bombsToRemove.add(bomb);
             }
         }
@@ -198,6 +217,10 @@ public class GameEngine {
             explosions.add(new Explosion(x, y));
 
             if (tile.getType() == fr.amu.iut.bomberman.model.map.Tile.TileType.DESTRUCTIBLE_WALL) {
+                // Notifier la destruction du bloc
+                if (eventListener != null) {
+                    eventListener.onBlockDestroyed(new Position(x, y));
+                }
                 break;
             }
         }
@@ -228,7 +251,6 @@ public class GameEngine {
 
     /**
      * Vérifie les collisions entre joueurs et éléments dangereux.
-     * Gère les dégâts causés par les explosions.
      */
     private void checkPlayerCollisions() {
         for (Player player : players) {
@@ -236,15 +258,19 @@ public class GameEngine {
 
             Position playerPos = new Position(player.getGridX(), player.getGridY());
 
-            // Vérifier collision avec les entités explosions
             boolean hitByExplosion = explosions.stream()
-                    .anyMatch(explosion -> explosion.canDamage() &&
+                    .anyMatch(explosion -> explosion.canDamage() && // ← CHANGEMENT ICI
                             explosion.getX() == playerPos.getX() &&
                             explosion.getY() == playerPos.getY());
 
             if (hitByExplosion) {
                 player.takeDamage();
                 System.out.println("💀 " + player.getName() + " touché par explosion! Vies: " + player.getLives());
+
+                // Notifier si le joueur meurt
+                if (!player.isAlive() && eventListener != null) {
+                    eventListener.onPlayerDied(player.getId());
+                }
             }
         }
     }
@@ -264,6 +290,11 @@ public class GameEngine {
                     .orElse(null);
             gameState.setWinner(winner);
 
+            // Notifier la fin de partie
+            if (eventListener != null) {
+                eventListener.onGameEnded(winner);
+            }
+
             System.out.println(winner != null ?
                     "🏆 Gagnant: " + winner.getName() : "⚰️ Match nul!");
         }
@@ -271,6 +302,7 @@ public class GameEngine {
 
     /**
      * Déplace un joueur dans une direction donnée.
+     * Empêche les mouvements diagonaux si l'un des côtés est bloqué.
      *
      * @param playerId Identifiant du joueur à déplacer
      * @param dx Déplacement en X (-1, 0, ou 1)
@@ -281,18 +313,44 @@ public class GameEngine {
         Player player = getPlayer(playerId);
         if (player == null || !player.isAlive()) return false;
 
+        // Limiter les mouvements à une case à la fois
+        dx = Math.max(-1, Math.min(1, dx));
+        dy = Math.max(-1, Math.min(1, dy));
+
+        // Si aucun mouvement, retourner false
+        if (dx == 0 && dy == 0) return false;
+
+        Position currentPos = new Position(player.getGridX(), player.getGridY());
         int newX = player.getGridX() + dx;
         int newY = player.getGridY() + dy;
         Position newPos = new Position(newX, newY);
 
-        if (canMoveTo(newPos)) {
-            player.setPosition(
-                    newX * CELL_SIZE + CELL_SIZE / 2.0,
-                    newY * CELL_SIZE + CELL_SIZE / 2.0
-            );
-            return true;
+        // Vérifier si la position cible est libre
+        if (!canMoveTo(newPos)) {
+            System.out.println("❌ Position cible " + newPos + " non accessible pour " + player.getName());
+            return false;
         }
-        return false;
+
+        // Vérifier si le mouvement diagonal est autorisé
+        if (!isDiagonalMovementAllowed(currentPos, newPos)) {
+            System.out.println("❌ Mouvement diagonal bloqué pour " + player.getName() +
+                    " de " + currentPos + " vers " + newPos);
+            return false;
+        }
+
+        // Effectuer le déplacement
+        player.setPosition(
+                newX * CELL_SIZE + CELL_SIZE / 2.0,
+                newY * CELL_SIZE + CELL_SIZE / 2.0
+        );
+
+        // Notifier le déplacement
+        if (eventListener != null) {
+            eventListener.onPlayerMoved(playerId, newPos);
+        }
+
+        System.out.println("✅ " + player.getName() + " déplacé vers " + newPos);
+        return true;
     }
 
     /**
@@ -324,6 +382,12 @@ public class GameEngine {
                         player.getExplosionRange()
                 );
                 bombs.add(newBomb);
+
+                // Notifier la pose de bombe
+                if (eventListener != null) {
+                    eventListener.onBombPlaced(bombPos, playerId);
+                }
+
                 System.out.println("✅ " + player.getName() + " a placé une bombe en " + bombPos +
                         ". Total bombes: " + bombs.size());
                 return true;
@@ -339,6 +403,7 @@ public class GameEngine {
 
     /**
      * Vérifie si une position est accessible pour un déplacement.
+     * Interdit les mouvements en diagonale si l'un des côtés est bloqué.
      *
      * @param position Position à vérifier
      * @return true si la position est libre
@@ -353,6 +418,30 @@ public class GameEngine {
             }
         }
         return true;
+    }
+
+    /**
+     * Vérifie si un mouvement diagonal est autorisé.
+     * Un mouvement diagonal n'est possible que si les deux côtés adjacents sont libres.
+     *
+     * @param currentPos Position actuelle du joueur
+     * @param targetPos Position cible
+     * @return true si le mouvement diagonal est autorisé
+     */
+    private boolean isDiagonalMovementAllowed(Position currentPos, Position targetPos) {
+        int dx = targetPos.getX() - currentPos.getX();
+        int dy = targetPos.getY() - currentPos.getY();
+
+        // Si ce n'est pas un mouvement diagonal, autoriser
+        if (dx == 0 || dy == 0) {
+            return true;
+        }
+
+        // Pour un mouvement diagonal, vérifier que les deux côtés sont libres
+        Position sideX = new Position(currentPos.getX() + dx, currentPos.getY());
+        Position sideY = new Position(currentPos.getX(), currentPos.getY() + dy);
+
+        return canMoveTo(sideX) && canMoveTo(sideY);
     }
 
     /**
@@ -417,4 +506,29 @@ public class GameEngine {
      * @return true si le jeu est en pause
      */
     public boolean isGamePaused() { return gameState.isPaused(); }
+
+    /**
+     * Indique si le jeu est en cours.
+     *
+     * @return true si le jeu est en cours
+     */
+    public boolean isGameRunning() { return gameState.isRunning(); }
+
+    /**
+     * Calcule le temps restant de la partie.
+     *
+     * @return Temps restant en secondes
+     */
+    public long getRemainingTime() {
+        return gameState.getRemainingTime();
+    }
+
+    /**
+     * Définit l'écouteur d'événements du jeu.
+     *
+     * @param listener L'écouteur d'événements
+     */
+    public void setEventListener(GameEventListener listener) {
+        this.eventListener = listener;
+    }
 }
