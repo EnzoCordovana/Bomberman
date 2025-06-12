@@ -1,5 +1,6 @@
 package fr.amu.iut.bomberman.controller;
 
+import fr.amu.iut.bomberman.model.game.GameSettings;
 import fr.amu.iut.bomberman.view.ViewManager;
 import fr.amu.iut.bomberman.model.game.GameEngine;
 import fr.amu.iut.bomberman.model.map.GameMap;
@@ -14,6 +15,7 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -24,102 +26,112 @@ import java.util.concurrent.atomic.AtomicLong;
  * Contrôleur principal de la vue de jeu Bomberman.
  * Gère l'interface de jeu, les entrées utilisateur et coordonne le rendu.
  * Implémente un système multithreadé pour optimiser les performances.
- * Utilise des contrôles distincts pour chaque joueur.
+ * Utilise les paramètres personnalisés sauvegardés pour les contrôles.
  */
 public class PlayController implements Initializable {
 
-    /** Zone d'affichage du jeu */
+    /**
+     * Zone d'affichage du jeu
+     */
     @FXML
     private AnchorPane gameArea;
 
-    /** Carte de jeu */
+    /**
+     * Carte de jeu
+     */
     private GameMap gameMap;
 
-    /** Moteur de jeu */
+    /**
+     * Moteur de jeu
+     */
     private GameEngine gameEngine;
 
-    /** Vue graphique de la carte */
+    /**
+     * Vue graphique de la carte
+     */
     private MapView mapView;
 
-    /** Référence à la fenêtre principale */
+    /**
+     * Référence à la fenêtre principale
+     */
     private Stage primaryStage;
 
-    /** Pool de threads pour la logique de jeu */
-    private ExecutorService gameThreadPool;
-
-    /** Planificateur pour les tâches périodiques */
-    private ScheduledExecutorService gameScheduler;
-
-    /** Timer pour le rendu d'animation */
-    private AnimationTimer renderTimer;
-
-    /** Tâche asynchrone de mise à jour du jeu */
-    private CompletableFuture<Void> gameUpdateTask;
-
-    /** Ensemble thread-safe des touches pressées */
-    private final Set<KeyCode> pressedKeys = ConcurrentHashMap.newKeySet();
-
-    /** Timestamp du dernier mouvement pour limiter la fréquence */
-    private final AtomicLong lastMoveTime = new AtomicLong(0);
-
-    /** Indicateur d'état du jeu */
-    private final AtomicBoolean gameRunning = new AtomicBoolean(false);
-
-    /** Délai minimum entre les mouvements (100ms) */
-    private static final long MOVE_DELAY_NS = 100_000_000L;
-
-    /** FPS cible pour le rendu */
-    private static final int TARGET_FPS = 60;
-
-    /** Temps par frame en nanosecondes */
-    private static final long FRAME_TIME_NS = 1_000_000_000L / TARGET_FPS;
-
-    /** Fréquence de mise à jour de la logique de jeu */
-    private static final int GAME_UPDATE_HZ = 120;
+    /**
+     * Instance des paramètres du jeu
+     */
+    private GameSettings gameSettings;
 
     /**
-     * Classe interne définissant les contrôles d'un joueur.
+     * Pool de threads pour la logique de jeu
      */
-    private static class PlayerControls {
+    private ExecutorService gameThreadPool;
 
-        /** Touches de contrôle pour un joueur */
-        public final KeyCode up, down, left, right, bomb;
+    /**
+     * Planificateur pour les tâches périodiques
+     */
+    private ScheduledExecutorService gameScheduler;
 
-        /**
-         * Constructeur des contrôles d'un joueur.
-         *
-         * @param up Touche pour aller vers le haut
-         * @param down Touche pour aller vers le bas
-         * @param left Touche pour aller à gauche
-         * @param right Touche pour aller à droite
-         * @param bomb Touche pour placer une bombe
-         */
-        public PlayerControls(KeyCode up, KeyCode down, KeyCode left, KeyCode right, KeyCode bomb) {
-            this.up = up;
-            this.down = down;
-            this.left = left;
-            this.right = right;
-            this.bomb = bomb;
-        }
-    }
+    /**
+     * Timer pour le rendu d'animation
+     */
+    private AnimationTimer renderTimer;
 
-    /** Configuration des contrôles pour chaque joueur */
-    private static final PlayerControls[] PLAYER_CONTROLS = {
-            new PlayerControls(KeyCode.Z, KeyCode.S, KeyCode.Q, KeyCode.D, KeyCode.E),           // Joueur 1: ZQSD + E
-            new PlayerControls(KeyCode.O, KeyCode.L, KeyCode.K, KeyCode.M, KeyCode.P), // Joueur 2: OKLM + P
-            new PlayerControls(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.ENTER),              // Joueur 3: fleches + enter
-            new PlayerControls(KeyCode.NUMPAD8, KeyCode.NUMPAD5, KeyCode.NUMPAD4, KeyCode.NUMPAD6, KeyCode.NUMPAD0) // Joueur 4: Pavé numérique
-    };
+    /**
+     * Tâche asynchrone de mise à jour du jeu
+     */
+    private CompletableFuture<Void> gameUpdateTask;
+
+    /**
+     * Ensemble thread-safe des touches pressées
+     */
+    private final Set<KeyCode> pressedKeys = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Timestamp du dernier mouvement pour limiter la fréquence
+     */
+    private final AtomicLong lastMoveTime = new AtomicLong(0);
+
+    /**
+     * Indicateur d'état du jeu
+     */
+    private final AtomicBoolean gameRunning = new AtomicBoolean(false);
+
+    /**
+     * Contrôles personnalisés chargés depuis les paramètres
+     */
+    private Map<Integer, GameSettings.PlayerControlSettings> playerControls;
+
+    /**
+     * Délai minimum entre les mouvements (100ms)
+     */
+    private static final long MOVE_DELAY_NS = 100_000_000L;
+
+    /**
+     * FPS cible pour le rendu
+     */
+    private static final int TARGET_FPS = 60;
+
+    /**
+     * Temps par frame en nanosecondes
+     */
+    private static final long FRAME_TIME_NS = 1_000_000_000L / TARGET_FPS;
+
+    /**
+     * Fréquence de mise à jour de la logique de jeu
+     */
+    private static final int GAME_UPDATE_HZ = 120;
 
     /**
      * Initialise le contrôleur après le chargement du FXML.
      * Configure tous les composants nécessaires au jeu.
      *
-     * @param location L'emplacement utilisé pour résoudre les chemins relatifs
+     * @param location  L'emplacement utilisé pour résoudre les chemins relatifs
      * @param resources Les ressources utilisées pour localiser l'objet racine
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        gameSettings = GameSettings.getInstance();
+        loadPlayerControls();
         initializeThreadPools();
         initializeGameComponents();
         setupGameArea();
@@ -128,15 +140,33 @@ public class PlayController implements Initializable {
     }
 
     /**
-     * Affiche les informations de contrôle dans la console.
-     * Aide les joueurs à connaître leurs touches de commande.
+     * Charge les contrôles personnalisés depuis les paramètres.
+     */
+    private void loadPlayerControls() {
+        playerControls = gameSettings.getAllPlayerControls();
+        System.out.println("🎮 Contrôles personnalisés chargés pour " + playerControls.size() + " joueurs");
+    }
+
+    /**
+     * Affiche les informations de contrôle actuelles dans la console.
      */
     private void displayControlsInfo() {
-        System.out.println("🎮 === CONTRÔLES DU JEU ===");
-        System.out.println("👤 Joueur 1 (Rouge): Z Q S D + E");
-        System.out.println("👤 Joueur 2 (Bleu): OKLM + P");
-        System.out.println("👤 Joueur 3 (Vert): fleche + entrer");
-        System.out.println("👤 Joueur 4 (Orange): PAVÉ NUM + 0");
+        System.out.println("🎮 === CONTRÔLES ACTUELS ===");
+
+        String[] playerNames = {"Rouge", "Bleu", "Vert", "Orange"};
+
+        for (int i = 0; i < Math.min(4, playerControls.size()); i++) {
+            GameSettings.PlayerControlSettings controls = playerControls.get(i);
+            if (controls != null) {
+                System.out.println("👤 Joueur " + (i + 1) + " (" + playerNames[i] + "):");
+                System.out.println("   ↑ " + GameSettings.keyCodeToDisplayName(controls.up) +
+                        "  ↓ " + GameSettings.keyCodeToDisplayName(controls.down));
+                System.out.println("   ← " + GameSettings.keyCodeToDisplayName(controls.left) +
+                        "  → " + GameSettings.keyCodeToDisplayName(controls.right));
+                System.out.println("   💣 " + GameSettings.keyCodeToDisplayName(controls.bomb));
+                System.out.println();
+            }
+        }
         System.out.println("===============================");
     }
 
@@ -162,7 +192,6 @@ public class PlayController implements Initializable {
             return t;
         });
 
-        // Processeurs logiques
         System.out.println("Threads initialisés - Processeurs: " + Runtime.getRuntime().availableProcessors());
     }
 
@@ -173,7 +202,7 @@ public class PlayController implements Initializable {
     private void initializeGameComponents() {
         gameMap = new GameMap(15, 13);
         gameEngine = new GameEngine(gameMap);
-        gameEngine.initializeGame(3);
+        gameEngine.initializeGame(Math.min(gameSettings.getPlayerCount(), playerControls.size()));
         mapView = new MapView(gameEngine);
 
         System.out.println("Composants de jeu initialisés");
@@ -206,7 +235,7 @@ public class PlayController implements Initializable {
 
     /**
      * Configure la gestion des entrées clavier de manière thread-safe.
-     * Associe les touches aux actions de jeu.
+     * Utilise les contrôles personnalisés chargés depuis les paramètres.
      */
     private void setupInputHandling() {
         gameArea.setFocusTraversable(true);
@@ -329,16 +358,17 @@ public class PlayController implements Initializable {
     }
 
     /**
-     * Traite les mouvements de tous les joueurs avec leurs contrôles respectifs.
-     * Vérifie les touches pressées et exécute les déplacements.
+     * Traite les mouvements de tous les joueurs avec leurs contrôles personnalisés.
+     * Utilise les paramètres sauvegardés pour déterminer les touches de chaque joueur.
      */
     private void processPlayerMovements() {
         Set<KeyCode> currentKeys = new HashSet<>(pressedKeys);
 
         CompletableFuture.runAsync(() -> {
-            // Traiter chaque joueur avec ses propres contrôles
-            for (int playerId = 0; playerId < Math.min(PLAYER_CONTROLS.length, gameEngine.getPlayers().size()); playerId++) {
-                PlayerControls controls = PLAYER_CONTROLS[playerId];
+            // Traiter chaque joueur avec ses contrôles personnalisés
+            for (int playerId = 0; playerId < Math.min(playerControls.size(), gameEngine.getPlayers().size()); playerId++) {
+                GameSettings.PlayerControlSettings controls = playerControls.get(playerId);
+                if (controls == null) continue;
 
                 int dx = 0, dy = 0;
 
@@ -364,14 +394,15 @@ public class PlayController implements Initializable {
 
     /**
      * Traite les actions instantanées comme le placement de bombes.
-     * Associe chaque touche au bon joueur.
+     * Utilise les touches de bombe personnalisées pour chaque joueur.
      *
      * @param keyCode Touche pressée à traiter
      */
     private void handleInstantAction(KeyCode keyCode) {
-        // Vérifier quelle bombe correspond à quelle touche
-        for (int playerId = 0; playerId < Math.min(PLAYER_CONTROLS.length, gameEngine.getPlayers().size()); playerId++) {
-            if (PLAYER_CONTROLS[playerId].bomb == keyCode) {
+        // Vérifier quelle touche de bombe correspond à quel joueur
+        for (int playerId = 0; playerId < Math.min(playerControls.size(), gameEngine.getPlayers().size()); playerId++) {
+            GameSettings.PlayerControlSettings controls = playerControls.get(playerId);
+            if (controls != null && controls.bomb == keyCode) {
                 boolean bombPlaced = gameEngine.placeBomb(playerId);
                 if (bombPlaced) {
                     System.out.println("💣 Joueur " + (playerId + 1) + " a placé une bombe!");
@@ -407,12 +438,17 @@ public class PlayController implements Initializable {
 
     /**
      * Redémarre une nouvelle partie.
-     * Remet à zéro tous les éléments de jeu.
+     * Recharge les contrôles au cas où ils auraient été modifiés.
      */
     private void restartGame() {
         CompletableFuture.runAsync(() -> {
             System.out.println("🔄 Redémarrage de la partie...");
-            gameEngine.initializeGame(2);
+
+            // Recharger les contrôles personnalisés
+            loadPlayerControls();
+
+            // Redémarrer le jeu
+            gameEngine.initializeGame(Math.min(gameSettings.getPlayerCount(), playerControls.size()));
         }, gameThreadPool);
     }
 

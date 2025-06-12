@@ -8,6 +8,8 @@ module MVP {
     // Dépendances Java standard
     requires java.desktop;
 
+    requires java.prefs;
+
     exports fr.amu.iut.bomberman.model.entities to javafx.fxml, javafx.graphics;
     opens fr.amu.iut.bomberman.model.entities to javafx.fxml;
     exports fr.amu.iut.bomberman.model.game to javafx.fxml, javafx.graphics;

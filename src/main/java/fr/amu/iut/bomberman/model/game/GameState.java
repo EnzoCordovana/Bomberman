@@ -1,234 +1,110 @@
 package fr.amu.iut.bomberman.model.game;
 
 import fr.amu.iut.bomberman.model.entities.Player;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Représente l'état global du jeu de manière thread-safe.
- * Utilise des classes atomiques pour gérer le multithreading.
- * Gère les états de pause, victoire, temps de jeu et conditions de fin.
+ * Classe pour gérer l'état global du jeu Bomberman.
+ * Contient les informations sur l'état de la partie, le gagnant, etc.
+ * Thread-safe pour une utilisation dans un environnement multithreadé.
  */
 public class GameState {
+    /** Indique si le jeu est en cours */
+    private volatile boolean running;
 
-    /** Indique si le jeu est en cours d'exécution */
-    private final AtomicBoolean running = new AtomicBoolean(false);
+    /** Indique si le jeu est en pause */
+    private volatile boolean paused;
 
-    /** Indique si le jeu est actuellement en pause */
-    private final AtomicBoolean paused = new AtomicBoolean(false);
+    /** Indique si la partie est terminée */
+    private volatile boolean gameOver;
 
-    /** Référence vers le joueur gagnant (null si pas de gagnant) */
-    private final AtomicReference<Player> winner = new AtomicReference<>(null);
+    /** Le joueur gagnant (null si pas de gagnant ou match nul) */
+    private volatile Player winner;
 
-    /** Timestamp de début de partie */
-    private final AtomicLong startTime = new AtomicLong(0);
+    /** Temps de début de la partie */
+    private volatile long startTime;
 
-    /** Durée maximale d'une partie en secondes */
-    private final AtomicInteger gameDuration = new AtomicInteger(300); // 5 minutes par défaut
+    /** Durée de la partie en secondes */
+    private volatile int duration;
 
     /**
-     * Constructeur de l'état de jeu.
-     * Initialise l'état à ses valeurs par défaut.
+     * Constructeur par défaut.
      */
     public GameState() {
         reset();
     }
 
     /**
-     * Remet l'état du jeu à zéro de manière thread-safe.
-     * Utilisé pour commencer une nouvelle partie.
+     * Remet l'état du jeu à zéro.
      */
-    public void reset() {
-        running.set(false);
-        paused.set(false);
-        winner.set(null);
-        startTime.set(System.currentTimeMillis());
+    public synchronized void reset() {
+        running = false;
+        paused = false;
+        gameOver = false;
+        winner = null;
+        startTime = 0;
+        duration = 180; // 3 minutes par défaut
+    }
+
+    /**
+     * Démarre une nouvelle partie.
+     */
+    public synchronized void startGame() {
+        running = true;
+        paused = false;
+        gameOver = false;
+        winner = null;
+        startTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Termine la partie.
+     * @param winner Le joueur gagnant (peut être null)
+     */
+    public synchronized void endGame(Player winner) {
+        running = false;
+        gameOver = true;
+        this.winner = winner;
     }
 
     /**
      * Calcule le temps écoulé depuis le début de la partie.
-     *
      * @return Temps écoulé en secondes
      */
-    public long getElapsedTime() {
-        if (!running.get()) return 0;
-        return (System.currentTimeMillis() - startTime.get()) / 1000;
+    public synchronized long getElapsedTime() {
+        if (startTime == 0) return 0;
+        return (System.currentTimeMillis() - startTime) / 1000;
     }
 
     /**
-     * Calcule le temps restant avant la fin de la partie.
-     *
+     * Calcule le temps restant dans la partie.
      * @return Temps restant en secondes
      */
-    public long getRemainingTime() {
-        return Math.max(0, gameDuration.get() - getElapsedTime());
+    public synchronized long getRemainingTime() {
+        long elapsed = getElapsedTime();
+        return Math.max(0, duration - elapsed);
     }
 
-    /**
-     * Vérifie si le temps de jeu est écoulé.
-     *
-     * @return true si le temps est écoulé
-     */
-    public boolean isTimeUp() {
-        return getRemainingTime() <= 0;
-    }
+    // Getters et setters thread-safe
+    public boolean isRunning() { return running; }
+    public synchronized void setRunning(boolean running) { this.running = running; }
 
-    /**
-     * Vérifie si la partie est terminée (arrêtée, gagnant, ou temps écoulé).
-     *
-     * @return true si la partie est finie
-     */
-    public boolean isGameOver() {
-        return !running.get() || winner.get() != null || isTimeUp();
-    }
+    public boolean isPaused() { return paused; }
+    public synchronized void setPaused(boolean paused) { this.paused = paused; }
 
-    /**
-     * Indique si le jeu est en cours d'exécution.
-     *
-     * @return true si le jeu fonctionne
-     */
-    public boolean isRunning() {
-        return running.get();
-    }
+    public boolean isGameOver() { return gameOver; }
+    public synchronized void setGameOver(boolean gameOver) { this.gameOver = gameOver; }
 
-    /**
-     * Indique si le jeu est en pause.
-     *
-     * @return true si le jeu est en pause
-     */
-    public boolean isPaused() {
-        return paused.get();
-    }
-
-    /**
-     * Retourne le joueur gagnant de la partie.
-     *
-     * @return Le joueur gagnant ou null si pas de gagnant
-     */
-    public Player getWinner() {
-        return winner.get();
-    }
-
-    /**
-     * Retourne le timestamp de début de partie.
-     *
-     * @return Timestamp de début en millisecondes
-     */
-    public long getStartTime() {
-        return startTime.get();
-    }
-
-    /**
-     * Retourne la durée configurée pour une partie.
-     *
-     * @return Durée en secondes
-     */
-    public int getGameDuration() {
-        return gameDuration.get();
-    }
-
-    /**
-     * Définit si le jeu est en cours d'exécution.
-     *
-     * @param running true pour démarrer, false pour arrêter
-     */
-    public void setRunning(boolean running) {
-        this.running.set(running);
-    }
-
-    /**
-     * Définit l'état de pause du jeu.
-     *
-     * @param paused true pour mettre en pause
-     */
-    public void setPaused(boolean paused) {
-        this.paused.set(paused);
-    }
-
-    /**
-     * Définit le joueur gagnant de la partie.
-     *
-     * @param winner Le joueur gagnant
-     */
-    public void setWinner(Player winner) {
-        this.winner.set(winner);
-    }
-
-    /**
-     * Définit la durée maximale d'une partie.
-     *
-     * @param gameDuration Durée en secondes
-     */
-    public void setGameDuration(int gameDuration) {
-        this.gameDuration.set(gameDuration);
-    }
-
-    /**
-     * Démarre la partie en initialisant le timestamp.
-     */
-    public void start() {
-        startTime.set(System.currentTimeMillis());
-        running.set(true);
-        paused.set(false);
-    }
-
-    /**
-     * Arrête la partie.
-     */
-    public void stop() {
-        running.set(false);
-    }
-
-    /**
-     * Met en pause / reprend la partie
-     */
-    public void togglePause() {
-        paused.set(!paused.get());
-    }
-
-    /**
-     * Formate le temps restant au format MM:SS.
-     *
-     * @return Chaîne formatée du temps restant
-     */
-    public String getFormattedTimeRemaining() {
-        long remaining = getRemainingTime();
-        long minutes = remaining / 60;
-        long seconds = remaining % 60;
-        return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    /**
-     * Obtient le statut de la partie sous forme de texte lisible.
-     *
-     * @return Description textuelle de l'état
-     */
-    public String getStatusText() {
-        if (!running.get()) {
-            return "Arrêtée";
-        } else if (paused.get()) {
-            return "En pause";
-        } else if (isTimeUp()) {
-            return "Temps écoulé";
-        } else if (winner.get() != null) {
-            return "Terminée - " + winner.get().getName() + " gagne!";
-        } else {
-            return "En cours";
+    public Player getWinner() { return winner; }
+    public synchronized void setWinner(Player winner) {
+        this.winner = winner;
+        if (winner != null) {
+            gameOver = true;
+            running = false;
         }
     }
 
-    /**
-     * Représentation textuelle de l'état pour le debug.
-     *
-     * @return Description complète de l'état
-     */
-    @Override
-    public String toString() {
-        return String.format("GameState{running=%s, paused=%s, winner=%s, timeRemaining=%s}",
-                running.get(), paused.get(),
-                winner.get() != null ? winner.get().getName() : "none",
-                getFormattedTimeRemaining());
-    }
+    public int getDuration() { return duration; }
+    public synchronized void setDuration(int duration) { this.duration = duration; }
+
+    public long getStartTime() { return startTime; }
 }
