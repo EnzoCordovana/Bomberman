@@ -238,7 +238,7 @@ public class GameEngine {
 
             // Vérifier collision avec les entités explosions
             boolean hitByExplosion = explosions.stream()
-                    .anyMatch(explosion -> explosion.isActive() &&
+                    .anyMatch(explosion -> explosion.canDamage() &&
                             explosion.getX() == playerPos.getX() &&
                             explosion.getY() == playerPos.getY());
 
